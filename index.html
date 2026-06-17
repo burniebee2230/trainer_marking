@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Driver Mentor Assessment · Transdev Sydney Light Rail</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy: #1B3A5C;
+      --navy-mid: #264F7D;
+      --amber: #F59E0B;
+      --bg: #EBF0F7;
+      --card: #FFFFFF;
+      --text: #1A202C;
+      --muted: #6B7280;
+      --border: #D1D5DB;
+      --s-col: #047857;
+      --s-bg: #D1FAE5;
+      --nys-col: #B91C1C;
+      --nys-bg: #FEE2E2;
+      --purple: #6D28D9;
+      --teal: #0E7490;
+      --radius: 12px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.05);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 16px;
+      line-height: 1.5;
+      padding-bottom: 88px;
+    }
+
+    /* ── APP HEADER ── */
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: var(--navy);
+      color: #fff;
+      padding: 10px 16px 0;
+    }
+    .app-header-top { padding-bottom: 8px; }
+    .app-header h1 { font-size: 13px; font-weight: 700; letter-spacing: 0.2px; }
+    .app-header p  { font-size: 11px; opacity: 0.65; margin-top: 1px; }
+
+    /* ── TRAM TRACK PROGRESS ── */
+    .track-scroll {
+      overflow-x: auto;
+      padding: 10px 16px 12px;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .track-scroll::-webkit-scrollbar { display: none; }
+    .track { display: flex; align-items: center; min-width: max-content; }
+    .track-rail { width: 22px; height: 2px; background: rgba(255,255,255,0.2); }
+    .track-stop { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; }
+    .stop-circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      border: 2px solid rgba(255,255,255,0.25);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.5);
+      transition: all 0.2s;
+    }
+    .stop-circle.done  { background: var(--s-col); border-color: var(--s-col); color: #fff; }
+    .stop-circle.nys   { background: var(--nys-col); border-color: var(--nys-col); color: #fff; }
+    .stop-circle.active{ background: var(--amber); border-color: var(--amber); color: var(--navy); }
+    .stop-label { font-size: 9px; color: rgba(255,255,255,0.45); white-space: nowrap; }
+
+    /* ── CONTENT AREA ── */
+    .content { padding: 14px 14px 0; max-width: 640px; margin: 0 auto; }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--card); border-radius: var(--radius);
+      padding: 18px; margin-bottom: 14px; box-shadow: var(--shadow);
+    }
+    .card-head { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
+    .sec-badge {
+      min-width: 30px; width: 30px; height: 30px; border-radius: 50%;
+      background: var(--navy); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 800;
+    }
+    .card-title { font-size: 14px; font-weight: 700; color: var(--navy); line-height: 1.3; }
+    .card-sub   { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    /* ── FORM GRID ── */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .form-field { display: flex; flex-direction: column; gap: 4px; }
+    .form-field.wide { grid-column: 1 / -1; }
+    .form-field label {
+      font-size: 11px; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.6px;
+    }
+    .form-field input, .form-field textarea {
+      padding: 9px 11px; border: 1.5px solid var(--border);
+      border-radius: 8px; font-size: 15px; font-family: inherit;
+      color: var(--text); background: var(--bg); -webkit-appearance: none;
+    }
+    .form-field input:focus, .form-field textarea:focus { outline: none; border-color: var(--navy); }
+    .form-field textarea { min-height: 80px; resize: none; line-height: 1.5; }
+
+    /* ── OBSERVATION ITEMS ── */
+    .obs-item { border-top: 1px solid var(--border); padding: 13px 0; }
+    .obs-item:last-of-type { margin-bottom: 2px; }
+    .obs-text { font-size: 14px; line-height: 1.45; margin-bottom: 9px; }
+    .btn-row { display: flex; gap: 7px; }
+
+    .tog {
+      flex: 1; padding: 9px 6px; border: 2px solid var(--border);
+      border-radius: 8px; font-size: 12px; font-weight: 800;
+      cursor: pointer; background: #fff; color: var(--muted);
+      transition: all 0.15s; min-height: 44px; letter-spacing: 0.4px;
+    }
+    .tog.s-tog.on  { background: var(--s-bg);  border-color: var(--s-col);  color: var(--s-col); }
+    .tog.nys-tog.on{ background: var(--nys-bg); border-color: var(--nys-col); color: var(--nys-col); }
+
+    .add-note-btn {
+      margin-top: 7px; font-size: 12px; color: var(--navy-mid);
+      cursor: pointer; border: none; background: none; padding: 0;
+      font-family: inherit; display: inline-flex; align-items: center; gap: 4px;
+    }
+    .note-field {
+      display: none; width: 100%; margin-top: 7px;
+      padding: 9px 11px; border: 1.5px solid var(--border); border-radius: 8px;
+      font-size: 14px; font-family: inherit; color: var(--text);
+      resize: none; min-height: 64px; line-height: 1.4;
+    }
+    .note-field.open { display: block; }
+    .note-field:focus { outline: none; border-color: var(--navy); }
+
+    /* ── OUTCOME BUTTONS ── */
+    .outcome-row { display: flex; gap: 10px; margin-top: 14px; }
+    .outcome-btn {
+      flex: 1; padding: 14px 8px; border: 2px solid var(--border);
+      border-radius: 10px; font-size: 13px; font-weight: 800; cursor: pointer;
+      background: #fff; color: var(--muted); transition: all 0.15s; min-height: 52px;
+    }
+    .outcome-btn.s-tog.on  { background: var(--s-bg);  border-color: var(--s-col);  color: var(--s-col); }
+    .outcome-btn.nys-tog.on{ background: var(--nys-bg); border-color: var(--nys-col); color: var(--nys-col); }
+
+    /* ── SIGNATURE ── */
+    .sig-block { margin-bottom: 18px; }
+    .sig-block:last-of-type { margin-bottom: 0; }
+    .sig-label-row {
+      display: flex; justify-content: space-between;
+      align-items: center; margin-bottom: 4px;
+    }
+    .sig-label { font-size: 13px; font-weight: 700; color: var(--navy); }
+    .sig-name  { font-size: 12px; color: var(--muted); }
+    .sig-wrap  { position: relative; }
+    .sig-canvas {
+      display: block; width: 100%; height: 140px; touch-action: none;
+      border: 2px solid var(--border); border-radius: 10px;
+      background: #FAFBFC; cursor: crosshair;
+    }
+    .sig-canvas.signed { border-color: var(--navy); }
+    .sig-clear {
+      position: absolute; top: 8px; right: 8px;
+      background: rgba(255,255,255,0.9); border: 1px solid var(--border);
+      border-radius: 6px; font-size: 11px; color: var(--muted);
+      cursor: pointer; padding: 4px 9px; font-family: inherit;
+    }
+    .sig-hint { font-size: 11px; color: var(--muted); text-align: center; margin-top: 4px; }
+    .sig-divider { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
+
+    .handover-box {
+      background: #FFFBEB; border: 1.5px solid #F59E0B; border-radius: 8px;
+      padding: 11px 13px; margin-bottom: 12px; font-size: 13px; color: #78350F;
+      line-height: 1.45;
+    }
+
+    .ts-bar {
+      text-align: center; font-size: 11px; color: var(--muted);
+      margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border);
+    }
+
+    /* ── EXPORT BAR ── */
+    .export-bar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #fff; border-top: 1px solid var(--border);
+      padding: 10px 14px; z-index: 200;
+    }
+    .export-btn {
+      width: 100%; padding: 15px; background: var(--navy); color: #fff;
+      border: none; border-radius: 10px; font-size: 15px; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+      font-family: inherit;
+    }
+    .export-btn:active { background: var(--navy-mid); }
+  </style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="app-header-top">
+    <h1>Driver Mentor Practical Training Assessment</h1>
+    <p>Transdev Sydney Light Rail · SLR-TDS-MEN-CHK-000001</p>
+  </div>
+  <div class="track-scroll"><div class="track" id="track"></div></div>
+</div>
+
+<div class="content" id="app"></div>
+
+<div class="export-bar">
+  <button class="export-btn" onclick="exportPDF()">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+      <polyline points="7 10 12 15 17 10"/>
+      <line x1="12" y1="15" x2="12" y2="3"/>
+    </svg>
+    Export PDF Report
+  </button>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════════
+
+const SECTIONS = [
+  { id: 1, title: "Preparation and Professional Readiness", items: [
+    "Arrives prepared and ready to conduct the mentoring session",
+    "Demonstrates a professional attitude and appropriate mentor mindset",
+    "Understands the purpose of the simulated mentoring activity",
+    "Presents as calm, organised and focused",
+    "Maintains a coaching and development focus throughout"
+  ]},
+  { id: 2, title: "Pre-Drive Briefing", items: [
+    "Conducts a clear pre-drive briefing before the simulated task begins",
+    "Explains the purpose of the drive/task clearly",
+    "Sets expectations for the trainee in a clear and professional way",
+    "Reinforces that the trained standard is to be followed",
+    "Identifies the learning focus for the session",
+    "Clarifies what the participant will be observing during the task",
+    "Uses clear, calm and structured language"
+  ]},
+  { id: 3, title: "Setting Expectations and Creating Learning Clarity", items: [
+    "Makes expectations clear without being vague or overly wordy",
+    "Explains the importance of consistency with training standards",
+    "Avoids creating mixed messages or personal shortcuts",
+    "Establishes a professional and respectful learning environment",
+    "Encourages the trainee to focus on safe and correct performance",
+    "Makes clear what the trainee is expected to demonstrate"
+  ]},
+  { id: 4, title: "Observation During the Simulated Task", items: [
+    "Observes the trainee before speaking unnecessarily",
+    "Allows the trainee enough space to demonstrate performance",
+    "Watches for technical and non-technical behaviours",
+    "Identifies signs of hesitation, overload or weak anticipation",
+    "Maintains attention to the whole performance, not just one isolated issue",
+    "Avoids over-coaching or over-prompting",
+    "Maintains a calm, attentive mentoring presence throughout"
+  ]},
+  { id: 5, title: "Coaching and Instruction Giving", items: [
+    "Gives coaching input that is clear and easy to understand",
+    "Uses short, relevant and timely instruction",
+    "Avoids long, confusing or poorly timed explanations",
+    "Provides instruction that supports safe thinking, not just task completion",
+    "Coaches in a way that reinforces the approved method",
+    "Adjusts instruction appropriately to the situation being simulated",
+    "Avoids taking over too early unless safety or control requires it"
+  ]},
+  { id: 6, title: "Reinforcing Standards", items: [
+    "Reinforces the trained standard during the simulation",
+    "Avoids undermining formal training with mixed messages",
+    "Maintains consistency between training and live-practice expectations",
+    "Corrects drift or informal shortcuts when they appear",
+    "Reinforces safe, consistent and professional performance"
+  ]},
+  { id: 7, title: "Identifying Issues and Responding Appropriately", items: [
+    "Recognises performance issues during the simulation",
+    "Distinguishes between isolated issues and repeated concerns where possible",
+    "Responds appropriately to weak performance",
+    "Does not ignore repeated or important gaps",
+    "Makes appropriate mentoring decisions based on what is observed",
+    "Shows awareness of when a concern would need escalation"
+  ]},
+  { id: 8, title: "Feedback and Debrief", items: [
+    "Conducts a structured post-task debrief",
+    "Gives feedback that is specific and based on observation",
+    "Identifies strengths shown during the simulation",
+    "Identifies areas requiring improvement",
+    "Explains why issues matter, not just what was wrong",
+    "Keeps feedback respectful, factual and professional",
+    "Encourages reflection from the trainee",
+    "Leaves the trainee clear on what to focus on next"
+  ]},
+  { id: 9, title: "Confidence Management and Professional Tone", items: [
+    "Supports confidence without lowering the standard",
+    "Maintains a respectful and professional tone",
+    "Avoids sarcasm, dismissiveness or personal criticism",
+    "Demonstrates empathy while remaining clear about performance",
+    "Handles mistakes or awkward moments calmly"
+  ]},
+  { id: 10, title: "Recording, Handback and Next-Step Thinking", items: [
+    "Clearly identifies what would need to be recorded following the session",
+    "Distinguishes between strengths, minor issues and meaningful concerns",
+    "Demonstrates understanding of the need for clear documentation",
+    "Demonstrates understanding of handback to training/next mentor",
+    "Understands the importance of making concerns visible"
+  ]}
+];
+
+const CRITICAL = [
+  "Set expectations clearly before the task",
+  "Observe the trainee in a structured way",
+  "Give clear and timely coaching/instruction",
+  "Reinforce the trained standard",
+  "Identify and respond to performance issues appropriately",
+  "Deliver a professional debrief with clear feedback",
+  "Show understanding of documentation and handback requirements"
+];
+
+// ══════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════
+
+const state = {};   // key -> 'S' | 'NYS'
+let outcomeState = null;
+
+// ══════════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════════
+
+function renderTrack() {
+  const stops = [
+    ...SECTIONS.map(s => ({ id: 's'+s.id, label: 'S'+s.id, text: s.id })),
+    { id: 'decision', label: 'Decision', text: '✓' },
+    { id: 'signoff',  label: 'Sign-off',  text: '✍' }
+  ];
+  let h = '';
+  stops.forEach((stop, i) => {
+    if (i > 0) h += '<div class="track-rail"></div>';
+    h += `<div class="track-stop" onclick="scrollTo('sec-${stop.id}')">
+      <div class="stop-circle" id="dot-${stop.id}">${stop.text}</div>
+      <div class="stop-label">${stop.label}</div>
+    </div>`;
+  });
+  document.getElementById('track').innerHTML = h;
+}
+
+function obsItems(items, prefix) {
+  return items.map((item, i) => {
+    const k = `${prefix}-${i}`;
+    return `
+      <div class="obs-item">
+        <div class="obs-text">${item}</div>
+        <div class="btn-row">
+          <button class="tog s-tog" id="${k}-S" onclick="toggle('${k}','S')">S — Satisfactory</button>
+          <button class="tog nys-tog" id="${k}-NYS" onclick="toggle('${k}','NYS')">NYS — Not Yet Satisfactory</button>
+        </div>
+        <button class="add-note-btn" onclick="toggleNote('${k}-note')">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          </svg>
+          Add note
+        </button>
+        <textarea class="note-field" id="${k}-note" placeholder="Note..." rows="2" spellcheck="true" lang="en-AU"></textarea>
+      </div>`;
+  }).join('');
+}
+
+function renderApp() {
+  let h = '';
+
+  // ── Details ──
+  h += `<div class="card" id="sec-details">
+    <div class="card-head">
+      <div class="sec-badge" style="background:#F59E0B;color:#1B3A5C;font-size:14px;">!</div>
+      <div><div class="card-title">Participant & Session Details</div>
+           <div class="card-sub">Complete before starting the assessment</div></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-field"><label>Participant Name</label>
+        <input type="text" id="f-name" autocomplete="name" placeholder="Full name" oninput="syncName()"></div>
+      <div class="form-field"><label>Employee Number</label>
+        <input type="text" id="f-empno" placeholder="e.g. T12345"></div>
+      <div class="form-field"><label>Date</label>
+        <input type="date" id="f-date"></div>
+      <div class="form-field"><label>Trainer / Assessor</label>
+        <input type="text" id="f-trainer" autocomplete="name" placeholder="Full name" oninput="syncTrainer()"></div>
+      <div class="form-field"><label>Location</label>
+        <input type="text" id="f-location" placeholder="e.g. Central Depot"></div>
+      <div class="form-field"><label>LRV Number</label>
+        <input type="text" id="f-lrv" placeholder="e.g. 2204"></div>
+    </div>
+  </div>`;
+
+  // ── Sections 1–10 ──
+  SECTIONS.forEach(s => {
+    h += `<div class="card" id="sec-s${s.id}">
+      <div class="card-head">
+        <div class="sec-badge">${s.id}</div>
+        <div><div class="card-title">${s.title}</div>
+             <div class="card-sub">${s.items.length} observation items</div></div>
+      </div>
+      ${obsItems(s.items, 's'+s.id)}
+    </div>`;
+  });
+
+  // ── Critical Requirements + Outcome ──
+  h += `<div class="card" id="sec-decision">
+    <div class="card-head">
+      <div class="sec-badge" style="background:#6D28D9;">&#10003;</div>
+      <div><div class="card-title">Overall Competency Decision</div>
+           <div class="card-sub">All 7 critical requirements must be satisfied</div></div>
+    </div>
+    ${obsItems(CRITICAL, 'crit')}
+    <div style="margin-top:10px;">
+      <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px;">Assessment Outcome</div>
+      <div class="outcome-row">
+        <button class="outcome-btn s-tog" id="out-S" onclick="toggleOutcome('S')">&#9744; Satisfactory</button>
+        <button class="outcome-btn nys-tog" id="out-NYS" onclick="toggleOutcome('NYS')">&#9744; Not Yet Satisfactory</button>
+      </div>
+    </div>
+  </div>`;
+
+  // ── Trainer Comments ──
+  h += `<div class="card" id="sec-comments">
+    <div class="card-head">
+      <div class="sec-badge" style="background:#0E7490;">C</div>
+      <div><div class="card-title">Trainer Comments</div>
+           <div class="card-sub">Strengths, development areas and follow-up actions</div></div>
+    </div>
+    <div class="form-field" style="margin-bottom:12px;">
+      <label>Strengths Observed</label>
+      <textarea id="tc-strengths" placeholder="Describe the strengths demonstrated..." spellcheck="true" lang="en-AU"></textarea>
+    </div>
+    <div class="form-field" style="margin-bottom:12px;">
+      <label>Areas Requiring Further Development</label>
+      <textarea id="tc-development" placeholder="Describe areas that need further work..." spellcheck="true" lang="en-AU"></textarea>
+    </div>
+    <div class="form-field">
+      <label>Recommended Follow-Up Actions</label>
+      <textarea id="tc-followup" placeholder="Outline recommended next steps..." spellcheck="true" lang="en-AU"></textarea>
+    </div>
+  </div>`;
+
+  // ── Sign-off ──
+  h += `<div class="card" id="sec-signoff">
+    <div class="card-head">
+      <div class="sec-badge" style="background:#1B3A5C;font-size:14px;">&#9998;</div>
+      <div><div class="card-title">Assessment Sign-Off</div>
+           <div class="card-sub">Both parties sign to acknowledge completion</div></div>
+    </div>
+
+    <div class="sig-block">
+      <div class="sig-label-row">
+        <span class="sig-label">Trainer / Assessor</span>
+        <span class="sig-name" id="sn-trainer">Assessor</span>
+      </div>
+      <div class="sig-wrap">
+        <canvas class="sig-canvas" id="cvs-trainer"></canvas>
+        <button class="sig-clear" onclick="clearSig('cvs-trainer')">Clear</button>
+      </div>
+      <div class="sig-hint">Sign above with your finger</div>
+    </div>
+
+    <hr class="sig-divider">
+
+    <div class="sig-block">
+      <div class="sig-label-row">
+        <span class="sig-label">Participant / Trainee</span>
+        <span class="sig-name" id="sn-trainee">Trainee</span>
+      </div>
+      <div class="handover-box">
+        Hand the device to the participant. By signing, they acknowledge they have received and understood the assessment outcome and feedback.
+      </div>
+      <div class="sig-wrap">
+        <canvas class="sig-canvas" id="cvs-trainee"></canvas>
+        <button class="sig-clear" onclick="clearSig('cvs-trainee')">Clear</button>
+      </div>
+      <div class="sig-hint">Participant signs above with their finger</div>
+    </div>
+
+    <div class="ts-bar">
+      Assessment timestamp: <strong id="ts-val"></strong>
+    </div>
+  </div>`;
+
+  document.getElementById('app').innerHTML = h;
+}
+
+// ══════════════════════════════════════════════════
+// INTERACTIONS
+// ══════════════════════════════════════════════════
+
+function toggle(key, val) {
+  if (state[key] === val) {
+    state[key] = null;
+    document.getElementById(`${key}-S`).classList.remove('on');
+    document.getElementById(`${key}-NYS`).classList.remove('on');
+  } else {
+    state[key] = val;
+    document.getElementById(`${key}-S`).classList.toggle('on', val === 'S');
+    document.getElementById(`${key}-NYS`).classList.toggle('on', val === 'NYS');
+  }
+  updateDots();
+}
+
+function toggleOutcome(val) {
+  if (outcomeState === val) {
+    outcomeState = null;
+    document.getElementById('out-S').classList.remove('on');
+    document.getElementById('out-NYS').classList.remove('on');
+  } else {
+    outcomeState = val;
+    document.getElementById('out-S').classList.toggle('on', val === 'S');
+    document.getElementById('out-NYS').classList.toggle('on', val === 'NYS');
+  }
+}
+
+function toggleNote(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+  if (el.classList.contains('open')) el.focus();
+}
+
+function updateDots() {
+  SECTIONS.forEach(s => {
+    const keys = s.items.map((_, i) => `s${s.id}-${i}`);
+    const vals = keys.map(k => state[k]);
+    const dot = document.getElementById(`dot-s${s.id}`);
+    dot.classList.remove('done','nys','active');
+    if (vals.some(v => v === 'NYS'))    dot.classList.add('nys');
+    else if (vals.every(v => v))        dot.classList.add('done');
+  });
+}
+
+function scrollTo(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function syncName()    { const v = v_('f-name');    document.getElementById('sn-trainee').textContent = v || 'Trainee'; }
+function syncTrainer() { const v = v_('f-trainer'); document.getElementById('sn-trainer').textContent = v || 'Assessor'; }
+
+// ══════════════════════════════════════════════════
+// SIGNATURE PADS
+// ══════════════════════════════════════════════════
+
+function setupSig(id) {
+  const cvs = document.getElementById(id);
+  const ctx = cvs.getContext('2d');
+  let drawing = false, lx = 0, ly = 0;
+
+  function init() {
+    const dpr = window.devicePixelRatio || 1;
+    const r = cvs.getBoundingClientRect();
+    cvs.width  = r.width  * dpr;
+    cvs.height = r.height * dpr;
+    ctx.scale(dpr, dpr);
+    ctx.strokeStyle = '#1B3A5C';
+    ctx.lineWidth   = 2.2;
+    ctx.lineCap     = 'round';
+    ctx.lineJoin    = 'round';
+  }
+
+  function pos(e) {
+    const r = cvs.getBoundingClientRect();
+    return e.touches
+      ? { x: e.touches[0].clientX - r.left, y: e.touches[0].clientY - r.top }
+      : { x: e.clientX - r.left,            y: e.clientY - r.top };
+  }
+
+  function start(e) { e.preventDefault(); drawing = true; const p = pos(e); lx = p.x; ly = p.y; }
+  function move(e)  {
+    if (!drawing) return; e.preventDefault();
+    const p = pos(e);
+    ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(p.x, p.y); ctx.stroke();
+    lx = p.x; ly = p.y;
+    cvs.classList.add('signed');
+  }
+  function end() { drawing = false; }
+
+  cvs.addEventListener('mousedown',  start);
+  cvs.addEventListener('mousemove',  move);
+  cvs.addEventListener('mouseup',    end);
+  cvs.addEventListener('mouseleave', end);
+  cvs.addEventListener('touchstart', start, { passive: false });
+  cvs.addEventListener('touchmove',  move,  { passive: false });
+  cvs.addEventListener('touchend',   end);
+
+  setTimeout(init, 60);
+}
+
+function clearSig(id) {
+  const cvs = document.getElementById(id);
+  cvs.getContext('2d').clearRect(0, 0, cvs.width, cvs.height);
+  cvs.classList.remove('signed');
+}
+
+// ══════════════════════════════════════════════════
+// PDF EXPORT
+// ══════════════════════════════════════════════════
+
+function v_(id) { const e = document.getElementById(id); return e ? (e.value || '') : ''; }
+
+function exportPDF() {
+  const trainerSig = document.getElementById('cvs-trainer').toDataURL('image/png');
+  const traineeSig = document.getElementById('cvs-trainee').toDataURL('image/png');
+
+  const now = new Date();
+  const ts  = now.toLocaleString('en-AU', {
+    day:'2-digit', month:'2-digit', year:'numeric',
+    hour:'2-digit', minute:'2-digit', hour12:true
+  });
+
+  const outcomeText  = outcomeState === 'S' ? 'SATISFACTORY' : outcomeState === 'NYS' ? 'NOT YET SATISFACTORY' : 'NOT RECORDED';
+  const outcomeColor = outcomeState === 'S' ? '#047857' : outcomeState === 'NYS' ? '#B91C1C' : '#6B7280';
+
+  // Build section tables
+  let sectHTML = '';
+  SECTIONS.forEach(s => {
+    let rows = '';
+    s.items.forEach((item, i) => {
+      const k    = `s${s.id}-${i}`;
+      const res  = state[k] || '—';
+      const note = v_(`${k}-note`);
+      const c    = res === 'S' ? '#047857' : res === 'NYS' ? '#B91C1C' : '#9CA3AF';
+      rows += `<tr style="border-bottom:1px solid #E5E7EB;">
+        <td style="padding:7px 9px;font-size:12px;line-height:1.4;">${item}${note ? `<br><span style="color:#6B7280;font-style:italic;font-size:11px;">${note}</span>` : ''}</td>
+        <td style="padding:7px 9px;text-align:center;font-size:12px;font-weight:800;color:${c};white-space:nowrap;">${res}</td>
+      </tr>`;
+    });
+    sectHTML += `
+      <div style="margin-bottom:18px;page-break-inside:avoid;">
+        <div style="background:#1B3A5C;color:#fff;padding:7px 10px;border-radius:4px 4px 0 0;font-size:12px;font-weight:700;">
+          Section ${s.id}: ${s.title}
+        </div>
+        <table style="width:100%;border-collapse:collapse;border:1px solid #E5E7EB;border-top:none;">
+          <thead><tr style="background:#F9FAFB;">
+            <th style="padding:5px 9px;text-align:left;font-size:10px;color:#6B7280;text-transform:uppercase;letter-spacing:.5px;">Observation Item</th>
+            <th style="padding:5px 9px;text-align:center;font-size:10px;color:#6B7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;">Result</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+  });
+
+  // Critical rows
+  let critRows = '';
+  CRITICAL.forEach((req, i) => {
+    const k    = `crit-${i}`;
+    const res  = state[k] || '—';
+    const note = v_(`${k}-note`);
+    const c    = res === 'S' ? '#047857' : res === 'NYS' ? '#B91C1C' : '#9CA3AF';
+    critRows += `<tr style="border-bottom:1px solid #E5E7EB;">
+      <td style="padding:7px 9px;font-size:12px;">${req}${note ? `<br><span style="color:#6B7280;font-style:italic;font-size:11px;">${note}</span>` : ''}</td>
+      <td style="padding:7px 9px;text-align:center;font-size:12px;font-weight:800;color:${c};">${res}</td>
+    </tr>`;
+  });
+
+  const doc = `<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<title>Mentor Assessment – ${v_('f-name') || 'Unknown'} – ${v_('f-date') || ts}</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#1A202C;background:#fff;}
+  @page{size:A4;margin:14mm 14mm 18mm;}
+  table{width:100%;border-collapse:collapse;}
+  th,td{text-align:left;}
+  .no-print{padding:24px;text-align:center;}
+  @media print{.no-print{display:none;}}
+</style>
+</head><body>
+
+<div style="background:#1B3A5C;color:#fff;padding:14px 18px;border-radius:6px;margin-bottom:18px;">
+  <div style="font-size:17px;font-weight:800;margin-bottom:2px;">Driver Mentor Practical Training Assessment</div>
+  <div style="font-size:10px;opacity:.75;">Transdev Sydney Light Rail &middot; SLR-TDS-MEN-CHK-000001 &middot; Issue 01 &middot; Mentoring Observation and Assessment Form</div>
+</div>
+
+<div style="background:#F9FAFB;border:1px solid #E5E7EB;border-radius:6px;padding:12px 14px;margin-bottom:18px;">
+  <div style="font-size:11px;font-weight:800;color:#1B3A5C;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;">Participant &amp; Session Details</div>
+  <table>
+    <tr>
+      <td style="padding:3px 0;font-size:11px;color:#6B7280;width:130px;">Participant Name</td>
+      <td style="padding:3px 10px;font-size:13px;font-weight:700;">${v_('f-name') || '—'}</td>
+      <td style="padding:3px 0;font-size:11px;color:#6B7280;width:130px;">Employee Number</td>
+      <td style="padding:3px 10px;font-size:13px;font-weight:700;">${v_('f-empno') || '—'}</td>
+    </tr>
+    <tr>
+      <td style="padding:3px 0;font-size:11px;color:#6B7280;">Date</td>
+      <td style="padding:3px 10px;font-size:13px;font-weight:700;">${v_('f-date') || '—'}</td>
+      <td style="padding:3px 0;font-size:11px;color:#6B7280;">Trainer / Assessor</td>
+      <td style="padding:3px 10px;font-size:13px;font-weight:700;">${v_('f-trainer') || '—'}</td>
+    </tr>
+    <tr>
+      <td style="padding:3px 0;font-size:11px;color:#6B7280;">Location</td>
+      <td style="padding:3px 10px;font-size:13px;font-weight:700;">${v_('f-location') || '—'}</td>
+      <td style="padding:3px 0;font-size:11px;color:#6B7280;">LRV Number</td>
+      <td style="padding:3px 10px;font-size:13px;font-weight:700;">${v_('f-lrv') || '—'}</td>
+    </tr>
+  </table>
+</div>
+
+${sectHTML}
+
+<div style="margin-bottom:18px;page-break-inside:avoid;">
+  <div style="background:#6D28D9;color:#fff;padding:7px 10px;border-radius:4px 4px 0 0;font-size:12px;font-weight:700;">
+    Overall Competency Decision &mdash; Critical Requirements
+  </div>
+  <table style="border:1px solid #E5E7EB;border-top:none;">
+    <thead><tr style="background:#F9FAFB;">
+      <th style="padding:5px 9px;font-size:10px;color:#6B7280;text-transform:uppercase;letter-spacing:.5px;">Critical Requirement</th>
+      <th style="padding:5px 9px;text-align:center;font-size:10px;color:#6B7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;">Result</th>
+    </tr></thead>
+    <tbody>${critRows}</tbody>
+  </table>
+</div>
+
+<div style="border:3px solid ${outcomeColor};border-radius:8px;padding:14px;text-align:center;margin-bottom:18px;page-break-inside:avoid;">
+  <div style="font-size:10px;color:#6B7280;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Assessment Outcome</div>
+  <div style="font-size:22px;font-weight:900;color:${outcomeColor};">${outcomeText}</div>
+</div>
+
+<div style="margin-bottom:18px;page-break-inside:avoid;">
+  <div style="background:#0E7490;color:#fff;padding:7px 10px;border-radius:4px 4px 0 0;font-size:12px;font-weight:700;">Trainer Comments</div>
+  <table style="border:1px solid #E5E7EB;border-top:none;">
+    <tr style="border-bottom:1px solid #E5E7EB;">
+      <td style="padding:8px 10px;font-size:10px;color:#6B7280;font-weight:800;text-transform:uppercase;width:150px;vertical-align:top;">Strengths Observed</td>
+      <td style="padding:8px 10px;font-size:12px;white-space:pre-wrap;">${v_('tc-strengths') || '—'}</td>
+    </tr>
+    <tr style="border-bottom:1px solid #E5E7EB;">
+      <td style="padding:8px 10px;font-size:10px;color:#6B7280;font-weight:800;text-transform:uppercase;vertical-align:top;">Areas for Development</td>
+      <td style="padding:8px 10px;font-size:12px;white-space:pre-wrap;">${v_('tc-development') || '—'}</td>
+    </tr>
+    <tr>
+      <td style="padding:8px 10px;font-size:10px;color:#6B7280;font-weight:800;text-transform:uppercase;vertical-align:top;">Follow-Up Actions</td>
+      <td style="padding:8px 10px;font-size:12px;white-space:pre-wrap;">${v_('tc-followup') || '—'}</td>
+    </tr>
+  </table>
+</div>
+
+<div style="border:1px solid #E5E7EB;border-radius:6px;overflow:hidden;margin-bottom:18px;page-break-inside:avoid;">
+  <div style="background:#1B3A5C;color:#fff;padding:7px 10px;font-size:12px;font-weight:700;">Assessment Sign-Off</div>
+  <table>
+    <tr>
+      <td style="padding:12px;border-right:1px solid #E5E7EB;width:50%;vertical-align:top;">
+        <div style="font-size:10px;font-weight:800;color:#1B3A5C;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;">Trainer / Assessor</div>
+        <div style="font-size:12px;color:#374151;margin-bottom:8px;">${v_('f-trainer') || '—'}</div>
+        <img src="${trainerSig}" style="width:100%;max-height:80px;object-fit:contain;border:1px solid #E5E7EB;border-radius:4px;background:#F9FAFB;"/>
+      </td>
+      <td style="padding:12px;width:50%;vertical-align:top;">
+        <div style="font-size:10px;font-weight:800;color:#1B3A5C;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;">Participant / Trainee</div>
+        <div style="font-size:12px;color:#374151;margin-bottom:8px;">${v_('f-name') || '—'}</div>
+        <img src="${traineeSig}" style="width:100%;max-height:80px;object-fit:contain;border:1px solid #E5E7EB;border-radius:4px;background:#F9FAFB;"/>
+      </td>
+    </tr>
+  </table>
+  <div style="padding:9px 12px;background:#F9FAFB;border-top:1px solid #E5E7EB;font-size:10px;color:#6B7280;text-align:center;">
+    Document generated: ${ts} &nbsp;&middot;&nbsp; By signing, the participant acknowledges receipt and understanding of the assessment outcome and feedback.
+  </div>
+</div>
+
+<div class="no-print">
+  <button onclick="window.print()" style="background:#1B3A5C;color:#fff;border:none;padding:14px 36px;font-size:15px;font-weight:700;border-radius:8px;cursor:pointer;">
+    Save as PDF
+  </button>
+  <p style="margin-top:10px;font-size:12px;color:#6B7280;">Choose &ldquo;Save as PDF&rdquo; from your print options</p>
+</div>
+
+</body></html>`;
+
+  const w = window.open('', '_blank');
+  if (!w) {
+    alert('Please allow popups for this page to export the PDF.');
+    return;
+  }
+  w.document.write(doc);
+  w.document.close();
+  w.onload = () => setTimeout(() => w.print(), 300);
+}
+
+// ══════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderTrack();
+  renderApp();
+  setupSig('cvs-trainer');
+  setupSig('cvs-trainee');
+
+  // Set today's date
+  document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+
+  // Timestamp
+  const tsEl = document.getElementById('ts-val');
+  if (tsEl) tsEl.textContent = new Date().toLocaleString('en-AU', {
+    day:'2-digit', month:'2-digit', year:'numeric',
+    hour:'2-digit', minute:'2-digit', hour12:true
+  });
+});
+</script>
+</body>
+</html>
