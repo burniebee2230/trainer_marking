@@ -1,0 +1,1646 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Verification of Competency · Light Rail Driver · Transdev</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --red: #CC0000;
+    --red-dark: #A30000;
+    --red-tint: #FBE9E9;
+    --charcoal: #404040;
+    --charcoal-soft: #5C5C5C;
+    --ink: #2A2A2A;
+    --bg: #F1F2F4;
+    --card: #FFFFFF;
+    --line: #DADCE0;
+    --line-soft: #ECEDEF;
+    --muted: #757980;
+
+    --yes: #1E7D43;   --yes-bg: #E3F3E9;
+    --no:  #C0291F;   --no-bg:  #FBE7E5;
+    --fb:  #C77800;   --fb-bg:  #FCF1DF;
+
+    --st-comp: #1E7D43;  --st-comp-bg: #E3F3E9;
+    --st-coach:#C77800;  --st-coach-bg:#FCF1DF;
+    --st-nyc:  #C0291F;  --st-nyc-bg: #FBE7E5;
+    --st-none: #9499A0;  --st-none-bg:#EEEFF1;
+
+    --out-pass:  #1E7D43; --out-pass-bg:  #E3F3E9;
+    --out-coach: #0E6E8C; --out-coach-bg: #E2F1F6;
+    --out-req:   #C77800; --out-req-bg:   #FCF1DF;
+    --out-stop:  #C0291F; --out-stop-bg:  #FBE7E5;
+
+    --radius: 12px;
+    --shadow: 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.05);
+    --font: 'Calibri', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 16px;
+    line-height: 1.5;
+    padding-bottom: 92px;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* ───────── HEADER ───────── */
+  .app-header {
+    position: sticky; top: 0; z-index: 100;
+    background: #fff; border-bottom: 1px solid var(--line);
+  }
+  .header-bar {
+    display: flex; align-items: center; gap: 12px;
+    padding: 9px 14px 8px;
+  }
+  .header-logo { height: 30px; width: auto; display: block; }
+  .header-titles { flex: 1; min-width: 0; border-left: 2px solid var(--red); padding-left: 11px; }
+  .header-titles h1 { font-size: 12.5px; font-weight: 700; color: var(--charcoal); letter-spacing: .1px; line-height: 1.25; }
+  .header-titles p  { font-size: 10.5px; color: var(--muted); margin-top: 1px; }
+  .header-saved-btn {
+    flex-shrink: 0; background: var(--bg); border: 1px solid var(--line);
+    border-radius: 8px; padding: 7px 10px; font-size: 11px; font-weight: 700;
+    color: var(--charcoal); cursor: pointer; font-family: inherit;
+    display: flex; align-items: center; gap: 5px; min-height: 38px;
+  }
+  .header-saved-btn:active { background: var(--line-soft); }
+  .saved-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--st-none); }
+  .saved-dot.on { background: var(--yes); }
+
+  /* progress + jump nav */
+  .subbar { padding: 0 14px 8px; }
+  .progress-wrap { display: flex; align-items: center; gap: 9px; }
+  .progress-track { flex: 1; height: 7px; background: var(--line-soft); border-radius: 4px; overflow: hidden; }
+  .progress-fill { height: 100%; width: 0%; background: var(--red); border-radius: 4px; transition: width .25s ease; }
+  .progress-label { font-size: 10.5px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+  .jump-nav { display: flex; gap: 6px; margin-top: 8px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .jump-nav::-webkit-scrollbar { display: none; }
+  .jump-btn {
+    flex-shrink: 0; font-size: 11px; font-weight: 700; padding: 5px 11px;
+    border-radius: 999px; border: 1px solid var(--line); background: #fff;
+    color: var(--charcoal-soft); cursor: pointer; font-family: inherit; white-space: nowrap;
+  }
+  .jump-btn:active { background: var(--bg); }
+
+  /* ───────── LAYOUT ───────── */
+  .content { padding: 14px 13px 0; max-width: 680px; margin: 0 auto; }
+
+  .card {
+    background: var(--card); border-radius: var(--radius);
+    padding: 16px; margin-bottom: 13px; box-shadow: var(--shadow);
+  }
+  .card-head { display: flex; align-items: flex-start; gap: 11px; margin-bottom: 13px; }
+  .card-tag {
+    flex-shrink: 0; min-width: 34px; height: 30px; padding: 0 8px; border-radius: 7px;
+    background: var(--charcoal); color: #fff; font-size: 12px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center; letter-spacing: .3px;
+  }
+  .card-tag.red { background: var(--red); }
+  .card-title { font-size: 14px; font-weight: 700; color: var(--charcoal); line-height: 1.3; }
+  .card-sub   { font-size: 11px; color: var(--muted); margin-top: 2px; line-height: 1.4; }
+
+  .section-banner {
+    background: var(--charcoal); color: #fff; border-radius: var(--radius) var(--radius) 0 0;
+    padding: 11px 15px; margin: 22px 0 0;
+  }
+  .section-banner.red { background: var(--red); }
+  .section-banner h2 { font-size: 14.5px; font-weight: 800; letter-spacing: .2px; }
+  .section-banner p { font-size: 11px; opacity: .85; margin-top: 2px; line-height: 1.45; }
+  .section-banner + .card { border-radius: 0 0 var(--radius) var(--radius); margin-top: 0; }
+  .section-banner + .card.group:first-of-type { border-radius: 0; }
+
+  /* ───────── FORM FIELDS ───────── */
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field.wide { grid-column: 1 / -1; }
+  .field label {
+    font-size: 10.5px; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .5px;
+  }
+  .field input, .field textarea, .field select {
+    padding: 9px 11px; border: 1.5px solid var(--line); border-radius: 8px;
+    font-size: 15px; font-family: inherit; color: var(--ink); background: var(--bg);
+    -webkit-appearance: none; width: 100%;
+  }
+  .field input:focus, .field textarea:focus, .field select:focus { outline: none; border-color: var(--red); background: #fff; }
+  .field textarea { min-height: 70px; resize: vertical; line-height: 1.5; }
+  .seg {
+    display: flex; gap: 6px; flex-wrap: wrap;
+  }
+  .seg button {
+    flex: 1; min-width: 60px; padding: 9px 6px; border: 1.5px solid var(--line); background: #fff;
+    border-radius: 8px; font-size: 12px; font-weight: 700; color: var(--charcoal-soft);
+    cursor: pointer; font-family: inherit; min-height: 42px;
+  }
+  .seg button.on { background: var(--red-tint); border-color: var(--red); color: var(--red-dark); }
+
+  /* ───────── GROUP CARDS / ITEMS ───────── */
+  .card.group { margin-bottom: 0; border-radius: 0; border-bottom: 1px solid var(--line-soft); }
+  .card.group.last { border-radius: 0 0 var(--radius) var(--radius); border-bottom: none; margin-bottom: 13px; }
+  .group-head {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 4px;
+    flex-wrap: wrap;
+  }
+  .gid { font-size: 12px; font-weight: 800; color: #fff; background: var(--red); border-radius: 6px; padding: 3px 8px; letter-spacing: .3px; }
+  .gtitle { font-size: 13.5px; font-weight: 700; color: var(--charcoal); flex: 1; min-width: 120px; }
+  .badge {
+    font-size: 10.5px; font-weight: 800; padding: 4px 10px; border-radius: 999px;
+    text-transform: uppercase; letter-spacing: .4px; white-space: nowrap;
+    background: var(--st-none-bg); color: var(--st-none);
+  }
+  .badge.comp  { background: var(--st-comp-bg);  color: var(--st-comp); }
+  .badge.coach { background: var(--st-coach-bg); color: var(--st-coach); }
+  .badge.nyc   { background: var(--st-nyc-bg);   color: var(--st-nyc); }
+  .group-hint { font-size: 10.5px; color: var(--muted); margin-bottom: 8px; }
+
+  .item { border-top: 1px solid var(--line-soft); padding: 12px 0 13px; }
+  .item:first-of-type { border-top: 1px solid var(--line); margin-top: 2px; }
+  .item-text { font-size: 13.5px; line-height: 1.45; margin-bottom: 9px; color: var(--ink); }
+  .item-text .qnum { color: var(--red); font-weight: 800; margin-right: 5px; }
+  .marks { display: flex; gap: 7px; }
+  .mark {
+    flex: 1; padding: 9px 4px; border: 2px solid var(--line); background: #fff;
+    border-radius: 8px; font-size: 12.5px; font-weight: 800; color: var(--muted);
+    cursor: pointer; font-family: inherit; min-height: 44px; transition: all .12s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .mark.yes.on { background: var(--yes-bg); border-color: var(--yes); color: var(--yes); }
+  .mark.no.on  { background: var(--no-bg);  border-color: var(--no);  color: var(--no); }
+  .mark.fb.on  { background: var(--fb-bg);  border-color: var(--fb);  color: var(--fb); }
+
+  .ev-note {
+    display: none; width: 100%; margin-top: 8px; padding: 8px 10px;
+    border: 1.5px solid var(--line); border-radius: 8px; font-size: 13.5px;
+    font-family: inherit; color: var(--ink); resize: vertical; min-height: 52px; line-height: 1.45;
+    background: var(--bg);
+  }
+  .ev-note.show { display: block; }
+  .ev-note:focus { outline: none; border-color: var(--red); background: #fff; }
+  .ev-note.required { border-color: var(--no); background: #FFF8F7; }
+  .ev-flag {
+    display: none; font-size: 10.5px; font-weight: 700; color: var(--no);
+    margin-top: 5px; align-items: center; gap: 4px;
+  }
+  .ev-flag.show { display: flex; }
+
+  /* ───────── REPEATABLE ROWS (intervention / evidence) ───────── */
+  .rowset { display: flex; flex-direction: column; gap: 11px; }
+  .rrow {
+    border: 1.5px solid var(--line); border-radius: 10px; padding: 11px; background: var(--bg);
+    position: relative;
+  }
+  .rrow .rrow-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .rrow .rrow-grid .wide { grid-column: 1 / -1; }
+  .mini-label { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 3px; display: block; }
+  .rrow input, .rrow textarea {
+    width: 100%; padding: 7px 9px; border: 1.5px solid var(--line); border-radius: 7px;
+    font-size: 14px; font-family: inherit; background: #fff; color: var(--ink); -webkit-appearance: none;
+  }
+  .rrow input:focus, .rrow textarea:focus { outline: none; border-color: var(--red); }
+  .rrow textarea { resize: vertical; min-height: 44px; line-height: 1.4; }
+  .row-del {
+    position: absolute; top: 9px; right: 9px; background: #fff; border: 1px solid var(--line);
+    border-radius: 6px; width: 26px; height: 26px; cursor: pointer; color: var(--no);
+    font-size: 15px; line-height: 1; display: flex; align-items: center; justify-content: center;
+  }
+  .add-row {
+    margin-top: 11px; width: 100%; padding: 11px; border: 1.5px dashed var(--line);
+    background: #fff; border-radius: 9px; font-size: 13px; font-weight: 700; color: var(--charcoal-soft);
+    cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .add-row:active { background: var(--bg); }
+
+  .ev-auto-row {
+    border: 1.5px solid var(--line); border-radius: 10px; padding: 11px; background: #fff; margin-bottom: 10px;
+  }
+  .ev-auto-head { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; flex-wrap: wrap; }
+  .ev-auto-src { font-size: 11px; font-weight: 700; color: var(--charcoal-soft); flex: 1; min-width: 100px; line-height: 1.35; }
+  .ev-auto-mark { font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 5px; text-transform: uppercase; letter-spacing: .4px; }
+  .ev-auto-mark.no { background: var(--no-bg); color: var(--no); }
+  .ev-auto-mark.fb { background: var(--fb-bg); color: var(--fb); }
+  .ev-empty-note { font-size: 12px; color: var(--muted); padding: 14px 8px; text-align: center; font-style: italic; }
+
+  /* ───────── SAFETY GATE / OUTCOME ───────── */
+  .gate-box {
+    border: 2px solid var(--line); border-radius: 11px; padding: 13px; margin-bottom: 14px;
+    background: var(--bg);
+  }
+  .gate-box.tripped { border-color: var(--no); background: #FFF6F5; }
+  .gate-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .gate-q { font-size: 13px; font-weight: 700; color: var(--charcoal); line-height: 1.4; }
+  .gate-sub { font-size: 11px; color: var(--muted); margin-top: 3px; line-height: 1.4; }
+  .switch { flex-shrink: 0; width: 52px; height: 30px; border-radius: 999px; background: var(--st-none); border: none; cursor: pointer; position: relative; transition: background .15s; }
+  .switch.on { background: var(--no); }
+  .switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; transition: transform .15s; }
+  .switch.on::after { transform: translateX(22px); }
+  .gate-flagnote { font-size: 11px; color: var(--no); font-weight: 700; margin-top: 9px; display: none; }
+  .gate-flagnote.show { display: block; }
+
+  .grp-summary { width: 100%; border-collapse: collapse; margin-bottom: 6px; }
+  .grp-summary td { padding: 8px 4px; border-bottom: 1px solid var(--line-soft); font-size: 12.5px; vertical-align: middle; }
+  .grp-summary td:first-child { color: var(--charcoal); font-weight: 600; }
+  .grp-summary td:last-child { text-align: right; }
+  .mini-badge { font-size: 10px; font-weight: 800; padding: 3px 9px; border-radius: 999px; text-transform: uppercase; letter-spacing: .3px; background: var(--st-none-bg); color: var(--st-none); }
+  .mini-badge.comp { background: var(--st-comp-bg); color: var(--st-comp); }
+  .mini-badge.coach { background: var(--st-coach-bg); color: var(--st-coach); }
+  .mini-badge.nyc { background: var(--st-nyc-bg); color: var(--st-nyc); }
+
+  .outcome-banner {
+    border-radius: 11px; padding: 16px; margin: 14px 0; border: 2px solid;
+    text-align: center;
+  }
+  .outcome-banner.pass  { border-color: var(--out-pass);  background: var(--out-pass-bg); }
+  .outcome-banner.coach { border-color: var(--out-coach); background: var(--out-coach-bg); }
+  .outcome-banner.req   { border-color: var(--out-req);   background: var(--out-req-bg); }
+  .outcome-banner.stop  { border-color: var(--out-stop);  background: var(--out-stop-bg); }
+  .outcome-banner.none  { border-color: var(--line); background: var(--bg); }
+  .outcome-eyebrow { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); font-weight: 700; margin-bottom: 5px; }
+  .outcome-title { font-size: 20px; font-weight: 900; line-height: 1.15; }
+  .outcome-banner.pass .outcome-title  { color: var(--out-pass); }
+  .outcome-banner.coach .outcome-title { color: var(--out-coach); }
+  .outcome-banner.req .outcome-title   { color: var(--out-req); }
+  .outcome-banner.stop .outcome-title  { color: var(--out-stop); }
+  .outcome-banner.none .outcome-title  { color: var(--st-none); font-size: 16px; }
+  .outcome-why { font-size: 12px; color: var(--charcoal); margin-top: 9px; line-height: 1.5; text-align: left;
+    background: rgba(255,255,255,.65); border-radius: 8px; padding: 9px 11px; }
+  .outcome-why strong { font-weight: 700; }
+  .duties-line { font-size: 12px; color: var(--charcoal); margin-top: 10px; font-weight: 600; }
+  .duties-line span { font-weight: 800; }
+
+  .bands { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+  .band { border: 1.5px solid var(--line); border-radius: 9px; padding: 10px 12px; opacity: .5; transition: opacity .15s; }
+  .band.active { opacity: 1; border-width: 2px; }
+  .band.active.pass  { border-color: var(--out-pass);  background: var(--out-pass-bg); }
+  .band.active.coach { border-color: var(--out-coach); background: var(--out-coach-bg); }
+  .band.active.req   { border-color: var(--out-req);   background: var(--out-req-bg); }
+  .band.active.stop  { border-color: var(--out-stop);  background: var(--out-stop-bg); }
+  .band-name { font-size: 12.5px; font-weight: 800; color: var(--charcoal); display: flex; align-items: center; gap: 7px; }
+  .band-check { font-size: 13px; }
+  .band-desc { font-size: 11px; color: var(--charcoal-soft); margin-top: 3px; line-height: 1.45; }
+
+  .duties-pick { margin-top: 16px; }
+  .duties-pick > label { font-size: 12px; font-weight: 700; color: var(--charcoal); display: block; margin-bottom: 7px; }
+
+  /* ───────── SIGN-OFF ───────── */
+  .declaration { font-size: 12px; color: var(--charcoal-soft); font-style: italic; line-height: 1.5; background: var(--bg); border-left: 3px solid var(--red); padding: 9px 12px; border-radius: 0 8px 8px 0; margin-bottom: 13px; }
+  .sig-block { margin-top: 13px; }
+  .sig-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px; }
+  .sig-head .lbl { font-size: 12.5px; font-weight: 700; color: var(--charcoal); }
+  .sig-head .nm { font-size: 11px; color: var(--muted); }
+  .sig-wrap { position: relative; }
+  .sig-canvas { display: block; width: 100%; height: 130px; touch-action: none; border: 2px solid var(--line); border-radius: 10px; background: #FCFCFD; }
+  .sig-canvas.signed { border-color: var(--red); }
+  .sig-clear { position: absolute; top: 7px; right: 7px; background: rgba(255,255,255,.92); border: 1px solid var(--line); border-radius: 6px; font-size: 11px; color: var(--muted); cursor: pointer; padding: 4px 9px; font-family: inherit; }
+  .sig-hint { font-size: 10.5px; color: var(--muted); text-align: center; margin-top: 4px; }
+  .handover { background: var(--fb-bg); border: 1.5px solid var(--fb); border-radius: 8px; padding: 10px 12px; margin: 13px 0 4px; font-size: 12.5px; color: #7A4A00; line-height: 1.45; }
+
+  .ts-note { text-align: center; font-size: 10.5px; color: var(--muted); margin-top: 13px; padding-top: 11px; border-top: 1px solid var(--line-soft); }
+
+  /* ───────── EXPORT BAR ───────── */
+  .export-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid var(--line); padding: 9px 13px; z-index: 100; display: flex; gap: 9px; max-width: 680px; margin: 0 auto; }
+  .bar-btn { flex: 1; padding: 13px 8px; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; border: none; display: flex; align-items: center; justify-content: center; gap: 7px; min-height: 48px; }
+  .bar-btn.ghost { flex: 0 0 auto; background: var(--bg); color: var(--charcoal); border: 1.5px solid var(--line); padding: 13px 16px; }
+  .bar-btn.ghost:active { background: var(--line-soft); }
+  .bar-btn.primary { background: var(--red); color: #fff; }
+  .bar-btn.primary:active { background: var(--red-dark); }
+
+  /* ───────── DRAWER / MODAL ───────── */
+  .overlay { position: fixed; inset: 0; background: rgba(20,22,26,.45); z-index: 300; display: none; }
+  .overlay.show { display: block; }
+  .drawer {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 310; background: #fff;
+    border-radius: 16px 16px 0 0; max-height: 86vh; display: none; flex-direction: column;
+    max-width: 680px; margin: 0 auto;
+  }
+  .drawer.show { display: flex; }
+  .drawer-handle { width: 38px; height: 4px; background: var(--line); border-radius: 999px; margin: 9px auto 4px; }
+  .drawer-head { padding: 6px 16px 12px; border-bottom: 1px solid var(--line-soft); }
+  .drawer-head h3 { font-size: 16px; font-weight: 800; color: var(--charcoal); }
+  .drawer-head p { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+  .drawer-body { overflow-y: auto; padding: 13px 16px; -webkit-overflow-scrolling: touch; }
+  .draft-item { border: 1.5px solid var(--line); border-radius: 10px; padding: 12px; margin-bottom: 10px; }
+  .draft-item.current { border-color: var(--red); background: var(--red-tint); }
+  .draft-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .draft-name { font-size: 14px; font-weight: 800; color: var(--charcoal); }
+  .draft-meta { font-size: 11px; color: var(--muted); margin-top: 2px; line-height: 1.5; }
+  .draft-outcome { font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 5px; text-transform: uppercase; letter-spacing: .3px; white-space: nowrap; }
+  .draft-actions { display: flex; gap: 8px; margin-top: 11px; }
+  .draft-btn { flex: 1; padding: 9px; border-radius: 8px; font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: inherit; border: 1.5px solid var(--line); background: #fff; color: var(--charcoal); }
+  .draft-btn.resume { background: var(--charcoal); color: #fff; border-color: var(--charcoal); }
+  .draft-btn.danger { flex: 0 0 auto; color: var(--no); border-color: var(--no-bg); }
+  .draft-empty { text-align: center; color: var(--muted); font-size: 13px; padding: 26px 12px; line-height: 1.6; }
+  .drawer-foot { border-top: 1px solid var(--line-soft); padding: 12px 16px; display: flex; flex-direction: column; gap: 9px; }
+  .foot-row { display: flex; gap: 9px; }
+  .foot-btn { flex: 1; padding: 12px; border-radius: 9px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; border: 1.5px solid var(--line); background: #fff; color: var(--charcoal); display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .foot-btn.red { background: var(--red); color: #fff; border-color: var(--red); }
+
+  .toast { position: fixed; bottom: 104px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--charcoal); color: #fff; padding: 11px 18px; border-radius: 999px; font-size: 13px; font-weight: 600; z-index: 400; opacity: 0; transition: all .25s; pointer-events: none; white-space: nowrap; box-shadow: 0 6px 20px rgba(0,0,0,.25); }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ───────── PRINT (iOS-native, no popup) ───────── */
+  #print-view { display: none; }
+  @media print {
+    .app-header, .content, .export-bar, .overlay, .drawer, .toast { display: none !important; }
+    #print-view { display: block !important; }
+    @page { size: A4; margin: 13mm 13mm 16mm; }
+  }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-bar">
+    <img class="header-logo" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCACeAdkDASIAAhEBAxEB/8QAHQABAAICAwEBAAAAAAAAAAAAAAcIBQYBAwQJAv/EAFYQAAEEAQIDBAUGBwgNDQAAAAEAAgMEBQYRBxIhCDFBURNhcYGRFCIyQqGxN1JicnR1shUWIzM1Q4KiFyQ2U1aFkpSzwcLD0RgmJ0RUVWNlg5PS4fH/xAAcAQEAAgMBAQEAAAAAAAAAAAAABAUDBgcCAQj/xABBEQABAwIEAwUHAgMDDQAAAAABAAIDBBEFBiExEkFRE2FxgfAHFCKRobHBMtEVNUI2krIWIzM0Q1JicoKiwuHx/9oADAMBAAIRAxEAPwC5aIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiLhx2BJIAHmvBbzWHqO5bWWoV3eUtljT9pXwkDdemsc/Rousgix1XOYW0/kq5fHzu8o7LHH7Csg0hwBBBB8QUBB2RzHM/ULLlECFfV5RN1jsxm8Nhw05bK0qIf8AR+UTtYT7Nz1Xox96nkKzbNC3Bagd9GSGQPafeF84hey9mJ4bxlpt15L0ogRfV4RERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERCi0vixxDxHD/BfLLv9sXpt206bXbOld5nyaPErxI9sbS5xsApFLSTVkzYIG8TnaABbBqbUGG01i5MnnMjBRqs+vI7q4+TR3k+oKvevO0lblfJV0ZjWwRdwu3W8zz62x9w9+/sUOaw1RqTXuo228pNLctSv5K1WJpLY9z0ZGwf/p8VL3DPs62rkUWR1tafSjds4Y+u4elI8nv7m+wdfWqF9dU1jiymFh19bLrNPlXBcuQNqMbfxyHZg28hu7xOiiHUOt9Y6jmcMrqHJWvSHf0LZS1nsDG7D7F5a+ldVXWiWDTmZsB3c5tOR2/v2V49L6H0npmFseEwNGqQBvJ6IOkdt4l53J+K2Jehgrn6yyEn11WGT2mw03wYfSNa0bX0+gH5Xz7n0lqumDJNprMwBve40pG7fYrK9kmvquDTGSGcbcjxhmb+57LQIcDsectDuob9H1b77Kbz7U2UqlwttNJxhxKocfz3NjVEaWSBrSSDxDUi3Tp80Cx2pskMPp3I5ZzecU60k/L58rSdvsWRXRkK0N2jPTst5oZ43RSN82uGx+wq0de2i0WMtDwX7X18F8+dSZvJ6jzNjMZi1Jat2HFznPO4aPBrR4NHcAt17PmrMlpviLjalexJ+5+SsNrWq5JLHcx2DtvxgduvtXs1xwO1tg81NBiMXNmcc55NeesQXcngHt7w4fBblwB4M5+rqmrqbVVQ46Cg/wBJWqvcDLLIO4uA+i0d/mStQp6WqFSDY3vqf/a/ReL45gL8De0SMLCyzWi1720HDuCD8lZoIgRbgvziiLjdcoiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIixWrc9Q0zp27ncnJyVqcRe4DvcfBo9ZOwHtVGNZ6jzWvNXy5S4JJ7duQR1qzOvo2k7MjYPf7z1Uw9sLVrpslQ0bVl/gq7RbuAHvedwxp9g3PvC47I+h2XL1jW2QhDo6rjBjw4dDJt8+T3A7D1k+S16ue6sqRTMOg3XYcrU8GW8EfjdQ28j9GDu5DzOp7lIvAnhNS0Tj48rlYo7OoZ2bvkI3bVB/m2evzd4+xStsgXKvIYWQsDGDRcsxHEajEqh1RUu4nH1YdAERcKtfaBwvF63quxPjXZW1gSQakeNlI9GOUbh7GkOJ3369V4qZzAziDSfBScEwpuKVPYOmbHpu46eA71ZGexXgYXzzxRNHeXvAH2rDZLWOk8dEZLupcTA0d5dbZ926odl4s5FM/8AdePJskYeVxtiQEHyJcscA3fcAb+apX464aCP5ldNpfZVFIA51Xcf8LR97lXhv8Y+GtNhc/VdSX1QNdIf6oK1+72iOHkId6F+UtOA6ejqbA+9xCp+ijOxyc7ABXUHsswpn+kke7zA/Cs3c7TuJa13yPSl+R3h6ayxgPw3WvX+01qGQuFHTWMgB+iZZnyEfDZQKijuxaqd/VbyCuYPZ9gMX+x4vFzj+VKl/j/xIstc2O/Rqh3d6Go3dvsLt1rt3inxEuF3ptX5QB3eI5fRj+qAtNUxcGeCGS1ayHNahdLjcI4h0bANprQ/J3+i38o9/h5rzFJV1TuFrifNZq+jy9gUBqJoWNH/ACgknoOpWqcNYdc6p1rSiwmTy0llk7ZZbJsyFkDQ4EueSdttvDx7lecdyxWmdP4bTWKjxeDx8NKqz6kberj5uPe4+srKrZ6GkNMwhzrkrhWaswsxupa+KIRsaLAcz3m325IiwHELU9fR2kruorVWW1DU5OaKIgOdzPDem/T6y0Xhvxvw+ttWQaeqYO/UmmjfIJZXsLRyjc9x3Uh9RGx4jcdSqqnwetqaV9XFGTGy9zppYX+xUsoiLMqxERERERERERERERERERERERERERERERERERERERdGRldBQsTs25o4nPbv3bgEoV9AubBd6bqo9HtDcQZshXgezDckkzWO2qO7i4A/XVto9ywE95AKi01ZHU34OSvccy5W4IYxVW+O5Fjfa37r9IgRSlQoiIiIiIiIiIiIiIiIiIiIiIiIiIiIuCdhuSAB5rleLNyeiw16UEgsryO+DSvhNl6Y3icG9VRHidmJM9xBzuVc/wBIJrsgjI6/MaeVoHuAV1+GOCh03oHDYeJoBgqsMh223kcOZ5+JKoxpOJtjVeIhcAWyX4WkHxBkC+hQ2A2A2CocFHG+SU7rrXtMf7tT0dCz9IBPyAA/K5REV+uRoiIiLqs169mMx2IIpmHvbIwOB9xWk6p4SaA1Cx5taer1pnD+Pp/wLx6/m9D7wVva0XjVr2voLR8t5pY/JWd4aEJ+tJt9Ij8VvefcPFYJxEGF0oFgrPCnVzqpkVE5we42FiR9vqqkcXdLUNGa6uYDHZI34IWtfzuA54y4b8jtum4G3xWpLuu2bF25NctzPnsTvMksjzu57idySulaLK5rnktFgv1ZQRTQ00cc7+N4ABPU8yiIgDj0aN3HuHmV4Usm2qmbsz8NIdV5STUebg9Jh6EnLFC4fNszd+x82t6E+ZIHmrbMa1oDWtDWgbAAbABa5wvwEemdAYbDMj5Hw1mmbzMjhzPJ/pErZVu9DStp4Q3nzX5ZzVjsuM4g+Vx+AEho5AD99yi65p4YG8000cTd9t3uAH2rsUQ9qfC5nO6Do1cJjbeQnZkGvdHXYXODeR3XYeHUKRPIY4y4C9lVYZSMrauOne8MDjYuOw7+SyHaRuU5eDWdZFbgkeRDs1sgJ/jmeCr92XpI4uMWPklkZGwVp93OcAPoetahltFawxOPlyGU03ladSLb0k00Baxu5AG59pAWMw2LyWYvtoYijYu23gubDA3meQBuTsFq1RWPfVMlLCCOXVd5wbLlNSYHU0TKlrmvvd4tZtwBrqdrX3C+g/7o4/8A7dV/95v/ABXfFLHKwPikZIw9zmu3B96of/Y54gf4IZv/ADZytp2fsbkcTwoxFDK056duP0vPDM3le3eRxG49ivaStfUPLXRlq5TmLLFLhNO2aGrbKSbWFtNDroSt8lljhjdLNIyONo3c5zgAPaVqmR4maAx8hjtauxLXg7ENnD9v8ndVb7Quq9Q5biHmcLdycxxtC06GCqw8sYaO4kD6R9ZWD0twx11qWm27idO2X1XDdk0pbEx482l5G49iiS4s8yGOFl7euS2Gg9ntK2jZV4lVCMPAI2G4uNXc/JXHxXEDROUlbFQ1ViZpHnZrPlLWucfUDstlY9r2B7XBzSNwQdwVTbBcDNczanxtHN4R9bHTzgWbDJWPbHGOrt+UnYkDYesqW+PXFX94teDSOk2xMybYGh8uwLace2zQB3F5Hdv3DqpENe8RukqG8IH1VLiOU6Z1bFR4RP2zngk7WaBzJHr5qYstl8ViYfTZTJ06Mf41idsY+0rDN4g6Gc7lGrsLv67jP+KpJRpap1xnHNrw5HO5GQ8z3EmRwBPeXHo0fALbTwM4miPn/e8z835XFv8AtKKMWnk1iiJCv3+z/CqOzK6vDX9NB9zf7K5dDIUchEJaF6tbjI3DoZWvG3nuCvSqA5LH6s0JmhBajyOCvgc7CyQsLhv3gtOxCth2bdU5vVnD99zPWxbtQW3wCYsDXOaA0jm26E9e9S6PEhUSdm5pDlQZjyW7CaUVsM4kiJAuN9duoI81J26xeV1Jp/EnbKZzG0j3bT2WMPwJVdu1RrfVGP1mNNY7Lz0cb8jjmcyueR73OLt+Zw67dB0UT6T0HrHWLX28JhbV6IOIfZc4NYXeI53Ebn1LFUYqWSmKNhcQp2EZBZUULK+uqWxRuFx57XJIAPzV06uvNF2pmwwarwz5HHZrRcZuT6uq2GORkjBJG9r2OG4c07g+9UpyHBHiTTpvtSaf9M1jS5zIbEb37fmg7k+obro4T8TM9oLNxRusTz4cyBluhKSQ1u+xLAfoOH/0V4Ziz2ODaiPhvzUmo9n9NUwPlwmrEpbu3T7g79LjzV3t148vlsZh6ptZXI1aMA/nLErWD4krD621bS05oK5qvpPBFWEsDd9vSuftyD3khUvuW9XcTdYsbI6xlcpbefRQg7Mib37NB6MaB4qVW14piGtF3HYKgyzlKTGRJPNJ2cUf6nHruR00G5OyuCzirw6dP6FusMVz77dZdh8dtls+Ky2My1cWMXkal6I/XrzNePiCqpHs5a9+SCQWMP6Xbf0Xyh3Q+W/LssNprhzxHwvEHF4kVcnhZrU4Bu1nn0YYOrnc7NwdgD0PqUZtfVNcBJFoeiuZco4DNE80eIAuaCbG3L5H5XV0l5spkaGLpPu5K7Xp1mdXSzSBjR7yvJqPM0dM6at5jJzO+S0YC+Rx+k/YdB6yTsPaVSHiPrnPa+z7rmRlk9Dz7VKMZJZCCegA8XeZ7yVKrq9tKBpdx5KiytlOfH5XEO4I27u/A7/srS5Hjvw1pTPiGbltFvTevVe9p9h22K64+N3DjL1LFSLOOrSyQvawWq74wSWnYbkbKENL9nzXOYost3HUcO2RvMyO08mTb1taDy+w9V+9SdnrXGKpSWqs2NybI2lz2Qylj9h37BwAPxUD3zECOLs9PXettGXMntf2IrTx9bi1/wC7b6qKcV/K9P8ASY/2wvojD/FM/NH3L524n+Vqf6RH+0F9EoekTPzR9y+YFtJ5flZPawAH0oHR3/iv04hoJJAAG5J8FoepOMHD3A2XVbmooZp2kh8dVjpy0+stBCgztHcVr+azdrSuCtvr4io8xWZInbG1IOjgSPqA9NvHqsHwv4Jal1nj48rNNFh8XJ/EyzMLpJh5tZ06eskb+CzzYlI+QxUzeIjmqrDsk0kFC2vxqfsmO2aN9duR152A8VPNTj7w1sTCJ2WtQbnbmlpyBo9e+3QKRsPlMdmKEd/FXq92rIPmSwvDmn3jx9SrDrjs7ZXB6etZbFZ2PJuqxmWSu6v6NzmgbnlO5BO3gVqvZ31le0vxBoVGzvOMykza1mAn5u7js2QDwcDt18t15ZiE8UrY6ltr8ws1Rk7CcQoJKvBZy4x7td8+gI023BVprfE7QNS1NVs6rxsM8LzHJG+QgscDsQeneCtmxl6pkqMF+hZjs1Z2B8Usbt2vae4gqqXax0h+4utY9RVYuWnmGkybdzZ2/S/yhsfit67IOrvluBuaQty7zUHenqAnvhcfnAfmu/aWeKvcaowSC3RVdflOBuBR4tRyF17cQNtOR26HTwU+Lhc7rz5G3DQx9m9O7lirxOlefyWjc/crMmy0UNLiAFreS4kaFxl+fH39U42varvLJonyfOY4d4K2PGXquSoQX6NhlirYYJIpWHdr2nuI9S+f9h1rU+rZHRtJs5W+S0ePNLJ0+9X8wWPhxOFpYuu1rYakDIWAdwDWgf6lXUFa+qc64sAt0zZlinwGKANkLpHi5BtYWt+SvaiIrJaUiIiIiIiIi8uViM+LtwAbmSB7Nva0hepPFfCLr61xaQRyXzywc37m6moT2N4xUuxuk3+ryyDff4FfQuKRksTJYyHMe0OafMFUU414N+n+J+ex7mkRvsusRHbbdknzx95HuVtuB+pGao4ZYi+Xh1iKEVrIHhJH80/EAH3qgwc9nLJCd/2XXfaPH75Q0eIx6tIt/eAI+xW7ouAuVsC5CiIhRF58ldq46hYv3ZmQVq8bpJZHHYNaBuSqNcXdb2teaxnyshcylHvFRhP83ED0JH4zu8/DwUtdrLiDzvGhMVP81vLLk3sd3nvbF9xPuCrtHG+WRkUTHPke4Na1o3Lie4AeJWsYxWcbuxZsN/Fd09nGWhSwfxOoHxOHw35N6+f28V+VL+h+BWdzWk7uoczO7EsFV81Ku6PeWUhu4LwfotO3t9ikPgJwTjxDYNTawrMlyJ2fVovG7a/k548X+ruHt7pyyr2x4y3I8/NbC9zvYGlZKHCAW8c/y/dQ80+0RzZvdcLOx1fvfub3d/y6r51jqFldH035HVuHosZzunvQs5fMF43+zdYyVwfK9zfoucSPYSpF7NuHdl+L2IIB9HS57khHhyDp/WIVLTx8czWDmV03GKsUuGzTu0swnzt+6uuBsNh4IgRb6vyUi4XKIijjtK/gWz3sg/0zFXnss/hmx36NY/YVjO0XXfZ4M6hazvZDHKfYyRrj9gVauzTchp8ZMOZnBombLA0k7fOcw7D7FQV+lfET3fcrrmUwX5Sr2t3+L/A1XWXCArlX65GqJcb/AMLeqP0+T/Urh8IvwYaa/V0P7IVO+N/4WtUfp7/9SuJwi/Bfpv8AV0P7IWv4X/rUvrmuv5+/kNB4D/AFs08jYYJJnfRY0uPsA3Xz61Rk7WodVZDKTOMti9be8dfN2zR8NgvoFfiM1CxA36UkTmj2kEL56Qk43NsMretS0C8H8h/UfYvuOE2jHLX8Lx7KmNDquQD4w1tvr+QFeXhTo7H6K0dTxVWFgsujbJcmAHNLKR84k+IHcPUFthXTj7EVyjBbgcHxTRNkY4dxaQCD8F3q8jY1jQ1uwXK6ueWonfLMbuJJN+qql2yf7vcT+rv945SJ2PvwZ2/1lJ+yxR32yf7vcT+rv945SJ2PvwZ2/wBZSfssVHB/M3+ui6pi39hqbxH3coo7W/4W/wDF0P3vUw9knrwkb+sJ/wDZUPdrf8Lf+Lofvepi7JH4JG/rCf8A2V5pP5lJ5/hZcwf2KpP+j7FS6qP9oKlDR4waghrxsjjfM2XlaNhu5jSftJPvV4VSftKfhmzn/pf6Nqz44P8AMDxVV7K3EYtI3kWH7tUy5rFX8/2SqENRr57MWNgsBgBLntjcCQPM8oPwUEcG9bt0FrFmbko/La8kLoJmNcA8NcQeZpPTcbd3irbcDuvCHTA/8vYte1xwI0TqW3Jegjnw1yVxdI+mQGPJ8Sw9PhsvlRRSydnNEfiAC9YPmahojV4ZiLCYpHu1HK5sb8+Wll2YPjxw4ybR6XKz455O3Lbrubt7xuPtUhYXMYrNVBaxGRqX4D9evKHj7O5Vo1R2as/ThlnwGbqZLl6tgmYYXuHqO5bv8FEmm87qHQ+pflmOlno36kpZNC47BxadnRvb3EdNl5OJVFO4CpZp1CkMyTg2MRPfgtUS5v8AS7/4CPHVWP7YuVkqaGxuKjfyi/d3kA8WxtJ+G5H2KL+ynp+vmuJZu24myxYqsbLGuHT0hIaw+7cn3Lau1NeZqLQOitUV2kQWuZ3L+KZI2u2/qkLF9ji/DBrnLUJHASWqAdH6yx+5Hwdv7lgmIkxJvFtpb5Kzw5j6TJE/ZaP+IO6j4uE/9qtWO5eXMfyTd/R3/slesdy8uZ/ki5+jyfslbG7ZcZj/AFjxXz1xP8r0/wBJZ+0FfXXWTfhdB5jKxfxlWhJIzrt84MO32qhWK/len+kx/tBXp4qVpbnC3UNaBpfI/GS8oHefmbrXcHJEcpHrddj9pDWuq6Br9je/hdqo7pyCrd1HjoMnYZDUntxtsyyO2a1hcOYk+zdXyxuoNKilDHQzeI+TRsDI2stR8rWgbADr3bKgNGA2rcFZj2MdNI2MOedmgk7bk+XVSTZ4CcSopS1mHqTt8Hx3I9j8SCouG1EsId2cfF1V9nbBsPxGSEVdWIbA2BtY7XO47lYTi3xR0pp/SuQggy1S/k7Fd8NerXlEhLnAjdxbuGtG+/VVa4N4a1nOJmBo1mOcWW2TyuA+hHGeZzj8PiQtxwXZ41/dnaL4x2KhJ+c+ScSOA8w1m+/xCsLwm4Y4Lh7Sk+Rl1zJTtAsXZWgOcPxWj6rd/D4qb2FTWzNfK3ha1ayMTwXK+GzU9BN200otcbDQjwsLnS5JK6+0Bg6Gc4V5lt6SOE04Tbgmf9SRnUfHq33qovDHVE2j9cYzPMJ9FDLy2Gj60Lujx8OvtAUtdqXiXBlZP3k4KwJasEgdkZ2Hdsj2npED4gHqfXsPBQjfwmUoYjHZa3TkipZIPNSV3dIGHZ32qLilQHVIdFu3cq/yLhLocFdBXmzZyeFp3sR9yBfwF19CK00VmvHYgeJIpWB7HDuc0jcFRP2p9UtwXDiTExPAt5l/ydo8REOsh+Gw/pLo7Les48vw7fir87G2MF/Bvc93/V9iWOPsAI3/ACVX/jdrR+ute2L9cudQr/2tQYPFgP0tvNx6/BWVbXt90Dm7u9FaPljKcpzA6CcfBAbk8jb9Pz0PhdbJ2VdLuzfEQZiaPepho/TEkbgyu3awe75x9yt+FoHATRf7y+H1WrZja3I3P7aunxD3Doz+iNh7d1IClYdTe7wBp3OpVJnPGRi+KySsN2N+FvgOfmblERFOWqoiIiIiIiIiIiKAO15o197E1NZUoS6WiPQXeUdfQk/NefzXHb+l6lH/AGY9fR6V1U/CZOYR4rLOa3ncdmwz9zXH1H6J9ytvkKla/Rno3IWT1p4zHLG8bhzSNiCqScaOHl3QOpn1+V8uItOL6FgjoW/3tx/Gb9o6qgxGJ9PMKqPz9d665kzEKbGcNfgFabGx4D9dO9p1HUeCvEFyq59n/jVB8nraU1la9HJGBFSyMrvmuHcI5D4HwDj3+KsW1zXNDmkEEbgjuKt6apZUM42Fc6xrBKrBqk09S23Q8iOo9aLlazxR1QzRuhsln3ND5YI+WBh+tK48rB7NzufUFsyw+stN4vVunrOCzET5Kdjbm5HcrmkHcEHwIIWWXiLDwb8lBonQNqIzUC7ARxW3tfX6Kgz3ZLOZlzyJ72SvTkkNBc+WRx8B7VangNwag0oyLUOpI4rOdcN4oujmU/Z5v8z4eHmtu4e8KdIaHtvvYmpLNecOUWbT/SSMHiG9AG+4breVU0OFiF3aS6uW/wCbM+OxGP3PDwWQ7HkT3abDu5otV4u5luA4a57JFzQ9lN8cYce97xytHxK2okDqSq39sLVzHfINF1JAS0i5d2Pd4RtP2u+CnVs4ggc/1darljC3YnikNOBpe58Bqf281XIDYBWm7IWk5Mdpu7qq3Fyy5Nwiq79/oWE7n3u3/wAkKDeD+g7uvtVxY+Nr48dARJfsAdI49/og/jO7h8fBXix1KtjqFehShZDWrxtiijaNg1oGwCpMFpCXdu4aDZdQ9puYWRwDC4T8TrF3cNwPEnXw8V6AiBFsy4iiIiIvLlqNfJ4y1jrbA+vaidDI0jva4bH71RPXWmszw91q/HzmSGarMJqNpvQSMB3ZI0+fdv5EK+xWv640bp/WeL/c/UFBliNp3ikB5ZIj5scOo+5V+IUXvTRwmzhstwyhmg4FO5sreKJ+jh+R+3NRJoXtHYKfFxw6vqWad9jQ189aP0kUp/G2HVp9WxXo1X2kdMVKbhpzH3MnbO4aZ2ehiafM7/OPsAWAznZjm9OXYTVLPRE9GXK/zm/0mnr8FzgezG8TtfndUNMQIJjp19i4eXM49PgoIdiYHBYeOnr6LZ3QZFL/AHntHW34Pi+W1/r5qAdS5e5n87ezWQMZt3ZXTS8jeVu58h5K8vCL8F+mv1dD+yFGea7NWnLd982Pzl7HVy1rWwCNsnLsNieY9SSevvUx6VxDMBpvH4WKZ07KVdkDZHAAvDRtuQFlw2imp5Xul5qHnfMuG4tQ08NFccB2ItYWsB0WT2VPe01oKxpnWM+fqQudiMtIZQ9o6QzHq5h8tz84e0jwVwl5MtjaOWx8+PyVSG3Unbyywyt5muHrCm1tI2qj4DvyWrZZzBLgVaKhou06OHUfuOSrBwV46jTGIg07qmtYtUK45a1qDZ0kTPBjmk/OA8COoUj5TtF6CrU3SUWZS9Py7sibX9GCfIucen2rC6t7NWIt2X2NN5ubGtcdxWsR+mY32O3Dh791r9Dsx5d1gC/qqkyHfqYaznOI95AVYz+JQt7MAG3Nb1Uf5E4lKaySRzC7Ut1GvPYH6FRZxW13f4galGWu1YajIo/Q14I+vIzcnq7xO571J/Zv4paV0hpi3g9Qzz05HWnTxzCIyMcC0Db5u5BG3kpPwvAjQNDTc+Is0pb81gD0t6V+0wI7iwjoz2D37qO8z2YrYsOOG1VC6Eno23XIcPe07H4BYm0ddBL24s5x39aKdLmLK+KUJwuQuiiaRwm3Tn/V37qOO0BqvD6y4hOy+DkllpirHCHyRlhc5pdvsD126+Kn7skH/okb+sJ/9lavpjszVIrDJtR6ifZjad3QU4vRhw8i8kn4AKddN4LE6cw8OJwtKKnTh+jHGPE95J7yT4kqTQUk7Z3Tyi11R5szFhUmExYVh7i8MI+IiwsAetrnXpZZLqqadqXHT0eL12xI13orteKaJxHQgN5Tt7C1XLWp8StAYDXuKZTzML2yw7mtahO0sJPfsfEeYPTopuIUpqYeBu+61rJ+PR4HiQqJQSwgtNt7G2vkQok4M8b9JYbQmOwOonWqdrHx+hD2QGRkrAfmn5vUHbvGy3X+z7wz/wC97X+ZSf8ABR7d7MNj0x+RauiMXh6ameYfB2xXR/yYcp/hbT/zN3/yUCOTEo2hvADb11W21VHkqrmdOalzS4k2AO51O7St7zPaH0BUpySY92QyNgNJZEyuYw4+Rc7bb29VVnM3L+rdX2rsdXmv5W457IIhv897ujR8VN9bsw3TKPlGr64j36+jpku927lKfDLhBpbQ0wvVmSZDKAEC5Z2JZv8AiNHRvt7/AFrHJTVta4CYBrQpVHjmWcsxSSYa50srhbW/5AAHhcrHa04bS5HgRU0fARJksZUifXcfrTRjq3f17uHvCqXp3L5XSmpa2VoOfVyFCbfle3bYjo5jh5HqCF9CNlGvE7gzpfW9l+RPpMXlX/TtVgNpfz2Ho4+voVJr8OdLwvh0c30FS5SzlFQiWlxFvFFKSSbXsTvcdCtbwHaR0jYx0b81QyVC4BtJHDEJWE+bXbg7e0LWuIvaOZbx1nG6RxU0TpmGM3bm27QR1LYxv19p9y8djsx5xs5FbVOPfFv0dJXe13wBP3raNG9m3B4+3Ha1JlpcvyHf5NFH6KIn8o7lxHq3Cw3xOQcBAHforMsyNRv95a50hGoZ8VvqB9SquQSuhnjnYRzxvD27+YO6tfH2iNCSafabdXJutug5Zagrggu5di3m3229a9vE/gRgNV3BksTZGDvcgY9sUIdBIAAG7s6bEAbbgqPoOzHnDOBPqnHMi36uZXe523sJH3rBFS11G5zYgCCrOvx3K+Y4YpK57o3M5a3F9xcAgjTxUD5B9aW9YkqQvhrPlc6KN7uZzGEnZpPiQOm6nnhZ2hDicVWw2r6Ni3HXaI471fYycgHQPaSNz3DcFb9pXs9aJxdSVuWNrNWJWFhkld6NrN/FrW9x9ZJWs6h7MlSSd8mA1NLXjcd2w24BJyjy5mkH7F8hoa6mPaR2udwsuI5pytjbfdKziDW/pcQfoRc/Ma81stntF8Po4HPhZl55AN2xiqG7ny3LtlE3Evj5qHUtSTG4KucFQkHLI9snNYkae8cw6NHs6+tZqDsx50y7T6oxrI/EsrvcfgSPvW9aO7O2kcRO2zmrNnOytIIjlAjhB9bR1d7ys7m4lUDhdZo9eJVTFLknCXdvGXTOGwIJ+4aPndQnwR4V5HXeUiu3Ypa2noX7z2CNjPt/Nx+e/i7w9qsTxx0LW1DwtmxeLqRxz4qMT4+Ng2DfRjqwe1u49uykWrXhq1461WGOCGNoayONoa1oHgAO5dhCn0+HRwwmPe+5Wp4vnKtxHEY6wfCIzdrRsPHqTz7tF88MXlsli4bsNC3LWZegNayGHb0kZIJafeFLXZf4eO1FqJuqMpBvicZJvC1w6TzjuHrDe8+vb1qRM92b8Bks/byUWevU4LM5m+TRwsLY9zuWtJ67d6mLT+Hx+Bw1XEYqu2vTqxhkTG+A8z5k95KrqLCpGSh02zdlueZfaBST0Biw4ESS/qNrWFtdeZ5X5BZAIgRbCuOoiIiIiIiIiIiIiIiLhYjV2nMPqrBz4bN1G2akw7u5zHeDmnwcPNZhF8c0OFivcUj4niRhsRqCNwqUcW+Eef0LYktMY/JYQn+DuRs6xjylA+ifX3H7F+uGvGXVmjGRUjK3LYpnQVbTjuwfkP72+zqPUrpysZJE6ORjXscNnNcNwR5EKIte8AdIahkkt4kyYG6/qfk7Q6Fx9cZ7v6JCopsLkhf2lK63d6/K6ph2e6LEacUePRcY/wB4D6kDUHvb8l26V4/6CzDGMyE9jC2HdCy0wlnue3cfHZb9jdXaVyLeahqLFWB+RaYSPduquZ7s969xsxNBlHLw+DoZhG73tft9hKw9Xh1rOpJyWdK5NpB/vHMPiEZX1keksfr7JPlLLdWO0oa21+RIP0Nj81cKzqLA1h/D5rHx+W9hvX7VjJ9b4Uu9HQkfek/8MbN+JUA6c0VqTmb/AM377fzoS371K+lNGZWHldagZXG31nAn4BTY6qaXZtlrdbgWGUIu6fjPkPtcrJ6w1zW0vpezqPLuaOQctWq07GaUj5rR5+s+A3VZtF6G1hxb1RZzVjmgq2ZzJbyMrDyDf6sY+sQNgAOg8SrJ3uFuJzmejy2q7MuXbX6VKB+ZVgb+aOr3HxJPuW+1K8FWvHXrQRwQxt5WRxtDWtHkAO5eZaN1S8dqfhHLr4rJh+ZYMDp3igbeZ+hcRo0dGjmepOl+tlhdC6Tw2jdPw4bC1/Rws6ySO6vmf4vcfEn7PBZ9EVi1oaLDZaZNNJPIZJDdx1JO5REReljRERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERNkRERERERNkRERNkREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREX/2Q==" alt="Transdev">
+    <div class="header-titles">
+      <h1>Verification of Competency</h1>
+      <p>Light Rail Driver · On-Network Observation &amp; Marking Record · v2</p>
+    </div>
+    <button class="header-saved-btn" onclick="openDrawer()">
+      <span class="saved-dot" id="saved-dot"></span>
+      Saved
+    </button>
+  </div>
+  <div class="subbar">
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="progress-label" id="progress-label">0 / 39</div>
+    </div>
+    <div class="jump-nav">
+      <button class="jump-btn" onclick="jump('sec-details')">Details</button>
+      <button class="jump-btn" onclick="jump('sec-partA')">Part A</button>
+      <button class="jump-btn" onclick="jump('sec-partB')">Part B</button>
+      <button class="jump-btn" onclick="jump('sec-partC')">Part C</button>
+      <button class="jump-btn" onclick="jump('sec-interv')">Interventions</button>
+      <button class="jump-btn" onclick="jump('sec-outcome')">Outcome</button>
+      <button class="jump-btn" onclick="jump('sec-signoff')">Sign-off</button>
+    </div>
+  </div>
+</header>
+
+<main class="content" id="app"></main>
+
+<div class="export-bar">
+  <button class="bar-btn ghost" onclick="saveDraft(true)" title="Save progress">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+    Save
+  </button>
+  <button class="bar-btn primary" onclick="exportPDF()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Export PDF
+  </button>
+</div>
+
+<!-- Drafts drawer -->
+<div class="overlay" id="overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-handle"></div>
+  <div class="drawer-head">
+    <h3>Saved assessments</h3>
+    <p id="drawer-status-note">Stored on this device. Use a file to move a draft to another phone.</p>
+  </div>
+  <div class="drawer-body" id="drawer-body"></div>
+  <div class="drawer-foot">
+    <div class="foot-row">
+      <button class="foot-btn" onclick="exportFile()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Save to file
+      </button>
+      <button class="foot-btn" onclick="document.getElementById('import-input').click()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Load file
+      </button>
+    </div>
+    <button class="foot-btn red" onclick="newAssessment()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Start new assessment
+    </button>
+  </div>
+</div>
+<input type="file" id="import-input" accept=".json,application/json" style="display:none" onchange="importFile(event)">
+
+<div class="toast" id="toast"></div>
+<div id="print-view"></div>
+
+<script>
+"use strict";
+
+/* ════════════════════════════════════════════════════
+   DATA  (verbatim from the VoC Observation & Marking Record)
+   ════════════════════════════════════════════════════ */
+
+const PART_A = [
+  { id: 'A1', title: 'Signals & Authority', items: [
+    'Correctly identifies and responds to all signal aspects.',
+    'Stops at restrictive signals and signs without hesitation.',
+    'Does not proceed without confirmed authority.'
+  ]},
+  { id: 'A2', title: 'Speed & Line-of-Sight', items: [
+    'Complies with line speed and temporary speed restrictions, braking early where required.',
+    'Adjusts speed for pedestrians, traffic, weather and visibility.',
+    'Maintains line-of-sight driving at all times.',
+    'Adjusts speed proactively to changing conditions.',
+    'Reduces speed early to manage risk and hazards.'
+  ]},
+  { id: 'A3', title: 'Hazard Awareness & Defensive Driving', items: [
+    'Anticipates pedestrian and other road-user hazards early.',
+    'Uses bell and horn appropriately and effectively.',
+    'Avoids last-second warnings or reactive braking.',
+    'Maintains situational awareness during normal and degraded operations.',
+    'Identifies and responds correctly to high-risk zones and hazards.'
+  ]},
+  { id: 'A4', title: 'Stops, Doors & Platform Safety', items: [
+    'Applies progressive braking without avoidable passenger instability.',
+    'Stops in the correct position at platforms.',
+    'Completes the correct door operation sequence.',
+    'Conducts CCTV checks prior to door closure.',
+    'Confirms doors are secure before movement.'
+  ]},
+  { id: 'A5', title: 'Workload, Communication & Decision-Making', items: [
+    'Prioritises safe driving over secondary tasks and radio distraction.',
+    'Uses clear and correct radio phraseology and communication protocols.',
+    'Remains compliant under time or service pressure.',
+    'Demonstrates safety-first decision-making.'
+  ]}
+];
+
+const PART_B = [
+  'Demonstrates smooth acceleration and braking techniques.',
+  'Maintains a professional demeanour throughout service.',
+  'Demonstrates proactive hazard scanning.',
+  'Uses defensive driving techniques consistently.',
+  'Applies effective workload management.',
+  'Demonstrates calm and clear communication.',
+  'Demonstrates effective risk-triggered commentary (where requested).'
+];
+
+const PART_C = [
+  'If you are unsure whether you have authority to proceed, what should you do?',
+  'What information should you include when making a safety-critical radio call?',
+  'You observe smoke inside the vehicle — what are your immediate actions?',
+  'A passenger suffers a medical emergency on board — what actions should you take?',
+  'What would you do if radio communications were lost?',
+  'You are experiencing traction issues with your vehicle — what are your immediate actions?',
+  'Describe the process for planned transfers on the network.',
+  'What are your immediate actions during a network emergency, and what must you do if you are not the driver directly involved?',
+  'Who authorises an emergency evacuation, and what factors must be considered?',
+  'What does safety-first decision-making mean in practice?'
+];
+
+// total markable items
+const TOTAL_ITEMS = PART_A.reduce((n,g)=>n+g.items.length,0) + PART_B.length + PART_C.length; // 22+7+10 = 39
+
+/* ════════════════════════════════════════════════════
+   STATE
+   ════════════════════════════════════════════════════ */
+
+function blankState() {
+  return {
+    id: 'voc_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+    meta: { driver:'', assessor:'', date:'', lrv:'', run:'', line:'', location:'' },
+    marks: {},          // key -> 'Yes'|'No'|'FB'
+    notes: {},          // key -> evidence text (shared with Evidence Record)
+    evMeta: {},         // key -> { locTime, ref }  (evidence-record-only fields)
+    interventions: [],  // [{time,location,reason,ref}]
+    evidenceExtra: [],  // [{locTime,obs,outcome,ref}]
+    csf: false,         // Critical Safety Failure flag (manual)
+    dutiesOverride: null, // null = use recommendation, else 'yes'|'cond'|'no'
+    actionRequired: null, // null = recommendation, else true|false
+    action: { areas:'', training:'', reassessment:'' },
+    comments: '',
+    signoff: { aName:'', aDate:'', dName:'', dDate:'' },
+    sigImages: { assessor:null, driver:null },
+    savedAt: null
+  };
+}
+
+let state = blankState();
+const LS_KEY = 'voc_drafts_v1';
+const LAST_KEY = 'voc_last_id_v1';
+
+/* ════════════════════════════════════════════════════
+   COMPETENCY ENGINE
+   ════════════════════════════════════════════════════ */
+
+function groupKeys(g) { return g.items.map((_, i) => `${g.id}-${i}`); }
+
+function groupStatus(g) {
+  const keys = groupKeys(g);
+  const vals = keys.map(k => state.marks[k]);
+  if (vals.some(v => v === 'No')) return 'nyc';
+  const fb = vals.filter(v => v === 'FB').length;
+  if (fb >= 2) return 'nyc';
+  if (vals.some(v => !v)) return 'incomplete';
+  if (fb === 1) return 'coach';
+  return 'comp'; // all Yes
+}
+
+function allMarked() {
+  const aKeys = PART_A.flatMap(groupKeys);
+  const bKeys = PART_B.map((_,i)=>`B-${i}`);
+  const cKeys = PART_C.map((_,i)=>`C-${i}`);
+  return [...aKeys,...bKeys,...cKeys].every(k => state.marks[k]);
+}
+
+function markedCount() {
+  return Object.values(state.marks).filter(Boolean).length;
+}
+
+function safetyGateTripped() {
+  return state.csf || state.interventions.length > 0;
+}
+
+// returns { code, triggers:[...] }
+function overallOutcome() {
+  if (safetyGateTripped()) {
+    const t = [];
+    if (state.interventions.length > 0) t.push(`${state.interventions.length} assessor intervention${state.interventions.length>1?'s':''} recorded`);
+    if (state.csf) t.push('Critical Safety Failure flagged');
+    return { code: 'stop', triggers: t };
+  }
+
+  if (!allMarked()) {
+    return { code: 'incomplete', triggers: [`${TOTAL_ITEMS - markedCount()} item(s) still unmarked`] };
+  }
+
+  const statuses = PART_A.map(g => ({ id: g.id, title: g.title, s: groupStatus(g) }));
+  const nyc = statuses.filter(x => x.s === 'nyc');
+  const coachGroups = statuses.filter(x => x.s === 'coach');
+  const cNo = PART_C.map((_,i)=>state.marks[`C-${i}`]).filter(v=>v==='No').length;
+  const bNo = PART_B.map((_,i)=>state.marks[`B-${i}`]).filter(v=>v==='No').length;
+
+  // Requires further coaching
+  const reqTriggers = [];
+  nyc.forEach(x => reqTriggers.push(`${x.id} Not Yet Competent`));
+  if (coachGroups.length >= 3) reqTriggers.push(`${coachGroups.length} Part A groups at Coaching`);
+  if (cNo > 0) reqTriggers.push(`${cNo} Part C question(s) marked No`);
+  if (bNo >= 2) reqTriggers.push(`${bNo} Part B items marked No`);
+  if (reqTriggers.length > 0) return { code: 'req', triggers: reqTriggers };
+
+  // Passed with coaching
+  const coachTriggers = [];
+  if (coachGroups.length >= 1) coachTriggers.push(coachGroups.map(x=>x.id).join(' & ') + (coachGroups.length>1?' at Coaching':' at Coaching (one FB)'));
+  const bFb = PART_B.map((_,i)=>state.marks[`B-${i}`]).filter(v=>v==='FB').length;
+  const cFb = PART_C.map((_,i)=>state.marks[`C-${i}`]).filter(v=>v==='FB').length;
+  if (bNo === 1) coachTriggers.push('1 Part B item marked No');
+  if (bFb > 0) coachTriggers.push(`${bFb} Part B coaching point(s)`);
+  if (cFb > 0) coachTriggers.push(`${cFb} Part C coaching point(s)`);
+  if (coachTriggers.length > 0) return { code: 'coach', triggers: coachTriggers };
+
+  // Passed
+  return { code: 'pass', triggers: ['All five Part A groups Competent; nothing marked No or FB across Parts A, B and C'] };
+}
+
+const OUTCOME_LABEL = {
+  pass:  'Passed',
+  coach: 'Passed with coaching',
+  req:   'Requires further coaching',
+  stop:  'Not to drive until further review',
+  incomplete: 'Assessment incomplete'
+};
+
+function recommendedDuties(code) {
+  if (code === 'pass' || code === 'coach') return 'yes';
+  if (code === 'req') return 'cond';
+  if (code === 'stop') return 'no';
+  return null;
+}
+function recommendedAction(code) {
+  return (code === 'req' || code === 'stop');
+}
+
+/* ════════════════════════════════════════════════════
+   RENDER
+   ════════════════════════════════════════════════════ */
+
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function itemHTML(key, text, qnum) {
+  const label = qnum ? `<span class="qnum">${qnum}.</span>${esc(text)}` : esc(text);
+  return `
+    <div class="item">
+      <div class="item-text">${label}</div>
+      <div class="marks">
+        <button class="mark yes" data-k="${key}" data-v="Yes" onclick="mark('${key}','Yes')">Yes</button>
+        <button class="mark no"  data-k="${key}" data-v="No"  onclick="mark('${key}','No')">No</button>
+        <button class="mark fb"  data-k="${key}" data-v="FB"  onclick="mark('${key}','FB')">FB</button>
+      </div>
+      <textarea class="ev-note" id="note-${key}" data-k="${key}" placeholder="Evidence / comments — objective, behaviour-based" spellcheck="true" lang="en-AU" oninput="onNote('${key}', this.value)"></textarea>
+      <div class="ev-flag" id="flag-${key}">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+        Evidence required for every No and FB
+      </div>
+    </div>`;
+}
+
+function render() {
+  let h = '';
+
+  // ── Session details ──
+  h += `<div class="card" id="sec-details">
+    <div class="card-head">
+      <div class="card-tag red">VoC</div>
+      <div><div class="card-title">Driver &amp; Session Details</div>
+      <div class="card-sub">Recurrent competency assurance · complete before observation</div></div>
+    </div>
+    <div class="grid">
+      <div class="field wide"><label>Driver name</label><input id="m-driver" autocomplete="off" oninput="onMeta('driver',this.value)"></div>
+      <div class="field wide"><label>Assessor name</label><input id="m-assessor" autocomplete="off" oninput="onMeta('assessor',this.value)"></div>
+      <div class="field"><label>Date of assessment</label><input type="date" id="m-date" oninput="onMeta('date',this.value)"></div>
+      <div class="field"><label>Line</label>
+        <select id="m-line" onchange="onMeta('line',this.value)">
+          <option value="">Select…</option>
+          <option value="L1">L1</option>
+          <option value="L2–L3">L2 – L3</option>
+          <option value="L4">L4</option>
+        </select>
+      </div>
+      <div class="field"><label>LRV number</label><input id="m-lrv" autocomplete="off" oninput="onMeta('lrv',this.value)"></div>
+      <div class="field"><label>Run</label><input id="m-run" autocomplete="off" oninput="onMeta('run',this.value)"></div>
+      <div class="field wide"><label>Location / route observed</label><input id="m-location" autocomplete="off" oninput="onMeta('location',this.value)"></div>
+    </div>
+  </div>`;
+
+  // ── PART A ──
+  h += `<div class="section-banner red" id="sec-partA">
+    <h2>Part A — Safety-Critical Assessment</h2>
+    <p>22 safety-critical behaviours in five groups. Any single No means Not Yet Competent in that area. Mark key: Yes = met independently and safely · FB = met overall, coaching point, no safety risk · No = standard not met.</p>
+  </div>`;
+  PART_A.forEach((g, gi) => {
+    const last = gi === PART_A.length - 1 ? ' last' : '';
+    h += `<div class="card group${last}" id="grp-${g.id}">
+      <div class="group-head">
+        <span class="gid">${g.id}</span>
+        <span class="gtitle">${esc(g.title)}</span>
+        <span class="badge" id="badge-${g.id}">Incomplete</span>
+      </div>
+      <div class="group-hint">Group rolls up to: Competent (all Yes) · Coaching (one FB) · Not Yet Competent (any No, or 2+ FB)</div>
+      ${g.items.map((t,i)=>itemHTML(`${g.id}-${i}`, t)).join('')}
+    </div>`;
+  });
+
+  // ── PART B ──
+  h += `<div class="section-banner" id="sec-partB">
+    <h2>Part B — Behavioural / Coaching Assessment</h2>
+    <p>Developmental items supporting coaching and driving maturity. A No is documented and informs the outcome but does not, on its own, determine it.</p>
+  </div>
+  <div class="card">${PART_B.map((t,i)=>itemHTML(`B-${i}`, t)).join('')}</div>`;
+
+  // ── PART C ──
+  h += `<div class="section-banner" id="sec-partC">
+    <h2>Part C — Knowledge &amp; Scenario Discussion</h2>
+    <p>Verbal assessment of non-routine situations. Assess understanding, safe judgement and procedural intent — not word-for-word recall. Encourage discussion before deciding.</p>
+  </div>
+  <div class="card">${PART_C.map((t,i)=>itemHTML(`C-${i}`, t, i+1)).join('')}</div>`;
+
+  // ── INTERVENTION RECORD ──
+  h += `<div class="section-banner" id="sec-interv">
+    <h2>Assessor Intervention Record</h2>
+    <p>Record every intervention to prevent unsafe operation. Any intervention forces a "Not to drive until further review" outcome.</p>
+  </div>
+  <div class="card">
+    <div class="rowset" id="interv-rows"></div>
+    <button class="add-row" onclick="addInterv()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add intervention
+    </button>
+  </div>`;
+
+  // ── EVIDENCE RECORD ──
+  h += `<div class="section-banner" id="sec-evidence">
+    <h2>Evidence Record</h2>
+    <p>Mandatory for every No and FB. Items you mark No or FB appear here automatically — fill in location/time and the rule reference. Add extra rows for anything else.</p>
+  </div>
+  <div class="card">
+    <div id="evidence-auto"></div>
+    <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:6px 0 10px;">Additional evidence</div>
+    <div class="rowset" id="evidence-extra"></div>
+    <button class="add-row" onclick="addEvidence()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add evidence row
+    </button>
+  </div>`;
+
+  // ── OVERALL OUTCOME ──
+  h += `<div class="section-banner red" id="sec-outcome">
+    <h2>Overall Outcome</h2>
+    <p>Calculated live from the marks above. Confirm the group statuses, apply the safety gate, then the most serious band that applies is the outcome.</p>
+  </div>
+  <div class="card">
+    <div class="gate-box" id="gate-box">
+      <div class="gate-top">
+        <div>
+          <div class="gate-q">Safety gate — Critical Safety Failure recorded?</div>
+          <div class="gate-sub">Set this if a critical safety failure occurred (e.g. a PAE prevented, or speed exceeded the limit by more than 10 km/h). Any logged intervention also trips the gate automatically.</div>
+        </div>
+        <button class="switch" id="csf-switch" onclick="toggleCSF()"></button>
+      </div>
+      <div class="gate-flagnote" id="gate-flagnote"></div>
+    </div>
+
+    <table class="grp-summary" id="grp-summary"></table>
+
+    <div class="outcome-banner none" id="outcome-banner">
+      <div class="outcome-eyebrow">Overall outcome</div>
+      <div class="outcome-title" id="outcome-title">Assessment incomplete</div>
+      <div class="outcome-why" id="outcome-why"></div>
+      <div class="duties-line" id="duties-line"></div>
+    </div>
+
+    <div class="bands" id="bands"></div>
+
+    <div class="duties-pick">
+      <label>Continue normal driving duties</label>
+      <div class="seg" id="duties-seg">
+        <button data-d="yes"  onclick="setDuties('yes')">Yes</button>
+        <button data-d="cond" onclick="setDuties('cond')">With conditions</button>
+        <button data-d="no"   onclick="setDuties('no')">No — stand down</button>
+      </div>
+    </div>
+  </div>`;
+
+  // ── ACTION PLAN ──
+  h += `<div class="section-banner" id="sec-action">
+    <h2>Action Plan</h2>
+    <p>Complete where development or reassessment is required.</p>
+  </div>
+  <div class="card">
+    <div class="field" style="margin-bottom:13px;">
+      <label>Action plan required?</label>
+      <div class="seg" id="action-seg">
+        <button data-a="no"  onclick="setAction(false)">No</button>
+        <button data-a="yes" onclick="setAction(true)">Yes</button>
+      </div>
+    </div>
+    <div id="action-fields" style="display:none;">
+      <div class="field" style="margin-bottom:12px;"><label>Areas requiring improvement</label>
+        <textarea id="ap-areas" spellcheck="true" lang="en-AU" oninput="onAction('areas',this.value)"></textarea></div>
+      <div class="field" style="margin-bottom:12px;"><label>Required training / development</label>
+        <textarea id="ap-training" spellcheck="true" lang="en-AU" oninput="onAction('training',this.value)"></textarea></div>
+      <div class="field"><label>Reassessment requirement / timeframe</label>
+        <textarea id="ap-reassessment" spellcheck="true" lang="en-AU" oninput="onAction('reassessment',this.value)"></textarea></div>
+    </div>
+  </div>`;
+
+  // ── COMMENTS ──
+  h += `<div class="card" style="margin-top:13px;">
+    <div class="card-head"><div class="card-tag">SUM</div>
+      <div><div class="card-title">Assessor Comments / Overall Summary</div></div></div>
+    <div class="field"><textarea id="comments" style="min-height:100px;" spellcheck="true" lang="en-AU" placeholder="Overall summary, feedback discussed, context…" oninput="onComments(this.value)"></textarea></div>
+  </div>`;
+
+  // ── SIGN-OFF ──
+  h += `<div class="section-banner red" id="sec-signoff">
+    <h2>Acknowledgement &amp; Sign-Off</h2>
+  </div>
+  <div class="card">
+    <div class="declaration"><strong>Assessor declaration.</strong> I confirm this Verification of Competency was conducted in accordance with the VoC process, and that the outcome recorded is supported by the objective evidence above.</div>
+    <div class="grid">
+      <div class="field"><label>Assessor name</label><input id="so-aName" oninput="onSign('aName',this.value)"></div>
+      <div class="field"><label>Date</label><input type="date" id="so-aDate" oninput="onSign('aDate',this.value)"></div>
+    </div>
+    <div class="sig-block">
+      <div class="sig-head"><span class="lbl">Assessor signature</span><span class="nm" id="sn-assessor">Assessor</span></div>
+      <div class="sig-wrap">
+        <canvas class="sig-canvas" id="cvs-assessor"></canvas>
+        <button class="sig-clear" onclick="clearSig('assessor')">Clear</button>
+      </div>
+      <div class="sig-hint">Sign above with your finger</div>
+    </div>
+
+    <div class="handover">Hand the device to the driver. The acknowledgement below confirms the outcome and feedback have been discussed.</div>
+    <div class="declaration" style="margin-top:13px;"><strong>Driver acknowledgement.</strong> I acknowledge the assessment outcome and that feedback has been discussed with me. I understand any development actions and reassessment requirements. I understand I may consult my Driver Team Leader, who will review the original decision and provide additional feedback within 14 days of an appeal.</div>
+    <div class="grid">
+      <div class="field"><label>Driver name</label><input id="so-dName" oninput="onSign('dName',this.value)"></div>
+      <div class="field"><label>Date</label><input type="date" id="so-dDate" oninput="onSign('dDate',this.value)"></div>
+    </div>
+    <div class="sig-block">
+      <div class="sig-head"><span class="lbl">Driver signature</span><span class="nm" id="sn-driver">Driver</span></div>
+      <div class="sig-wrap">
+        <canvas class="sig-canvas" id="cvs-driver"></canvas>
+        <button class="sig-clear" onclick="clearSig('driver')">Clear</button>
+      </div>
+      <div class="sig-hint">Driver signs above with their finger</div>
+    </div>
+
+    <div class="ts-note">Assessment timestamp set at export · Transdev Sydney Light Rail</div>
+  </div>`;
+
+  document.getElementById('app').innerHTML = h;
+}
+
+/* ════════════════════════════════════════════════════
+   INTERVENTION + EVIDENCE ROWS
+   ════════════════════════════════════════════════════ */
+
+function renderInterv() {
+  const wrap = document.getElementById('interv-rows');
+  if (!wrap) return;
+  if (state.interventions.length === 0) {
+    wrap.innerHTML = `<div class="ev-empty-note">No interventions recorded.</div>`;
+    return;
+  }
+  wrap.innerHTML = state.interventions.map((r, i) => `
+    <div class="rrow">
+      <button class="row-del" onclick="delInterv(${i})">&times;</button>
+      <div class="rrow-grid">
+        <div><span class="mini-label">Time</span><input value="${esc(r.time)}" oninput="updInterv(${i},'time',this.value)"></div>
+        <div><span class="mini-label">Location</span><input value="${esc(r.location)}" oninput="updInterv(${i},'location',this.value)"></div>
+        <div class="wide"><span class="mini-label">Reason for intervention (objective)</span><textarea oninput="updInterv(${i},'reason',this.value)">${esc(r.reason)}</textarea></div>
+        <div class="wide"><span class="mini-label">Rule / procedure reference</span><input value="${esc(r.ref)}" oninput="updInterv(${i},'ref',this.value)"></div>
+      </div>
+    </div>`).join('');
+}
+
+function addInterv() { state.interventions.push({time:'',location:'',reason:'',ref:''}); renderInterv(); updateLive(); save(); }
+function delInterv(i) { state.interventions.splice(i,1); renderInterv(); updateLive(); save(); }
+function updInterv(i,f,v) { state.interventions[i][f]=v; save(); }
+
+// Auto evidence rows from No/FB items + manual extra
+function renderEvidence() {
+  // auto rows
+  const auto = document.getElementById('evidence-auto');
+  if (auto) {
+    const rows = [];
+    const pushIf = (key, label) => {
+      const m = state.marks[key];
+      if (m === 'No' || m === 'FB') rows.push({ key, label, m });
+    };
+    PART_A.forEach(g => g.items.forEach((t,i)=>pushIf(`${g.id}-${i}`, `${g.id} · ${t}`)));
+    PART_B.forEach((t,i)=>pushIf(`B-${i}`, `Part B · ${t}`));
+    PART_C.forEach((t,i)=>pushIf(`C-${i}`, `Part C Q${i+1} · ${t}`));
+
+    if (rows.length === 0) {
+      auto.innerHTML = `<div class="ev-empty-note">No items marked No or FB yet. Any you mark will appear here for evidence.</div>`;
+    } else {
+      auto.innerHTML = rows.map(r => {
+        if (!state.evMeta[r.key]) state.evMeta[r.key] = { locTime:'', ref:'' };
+        const em = state.evMeta[r.key];
+        return `
+        <div class="ev-auto-row">
+          <div class="ev-auto-head">
+            <span class="ev-auto-src">${esc(r.label)}</span>
+            <span class="ev-auto-mark ${r.m==='No'?'no':'fb'}">${r.m}</span>
+          </div>
+          <div class="rrow-grid">
+            <div><span class="mini-label">Location / time</span><input value="${esc(em.locTime)}" oninput="updEvMeta('${r.key}','locTime',this.value)"></div>
+            <div><span class="mini-label">Rule / procedure ref</span><input value="${esc(em.ref)}" oninput="updEvMeta('${r.key}','ref',this.value)"></div>
+            <div class="wide"><span class="mini-label">Observation (from the item note)</span><textarea oninput="onNote('${r.key}', this.value)">${esc(state.notes[r.key]||'')}</textarea></div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+  }
+  // extra rows
+  const extra = document.getElementById('evidence-extra');
+  if (extra) {
+    if (state.evidenceExtra.length === 0) {
+      extra.innerHTML = `<div class="ev-empty-note">No additional rows.</div>`;
+    } else {
+      extra.innerHTML = state.evidenceExtra.map((r,i)=>`
+        <div class="rrow">
+          <button class="row-del" onclick="delEvidence(${i})">&times;</button>
+          <div class="rrow-grid">
+            <div><span class="mini-label">Location / time</span><input value="${esc(r.locTime)}" oninput="updEvidence(${i},'locTime',this.value)"></div>
+            <div><span class="mini-label">Outcome</span><input value="${esc(r.outcome)}" oninput="updEvidence(${i},'outcome',this.value)"></div>
+            <div class="wide"><span class="mini-label">Observation</span><textarea oninput="updEvidence(${i},'obs',this.value)">${esc(r.obs)}</textarea></div>
+            <div class="wide"><span class="mini-label">Rule / procedure reference</span><input value="${esc(r.ref)}" oninput="updEvidence(${i},'ref',this.value)"></div>
+          </div>
+        </div>`).join('');
+    }
+  }
+}
+
+function updEvMeta(key,f,v){ if(!state.evMeta[key]) state.evMeta[key]={locTime:'',ref:''}; state.evMeta[key][f]=v; save(); }
+function addEvidence(){ state.evidenceExtra.push({locTime:'',obs:'',outcome:'',ref:''}); renderEvidence(); save(); }
+function delEvidence(i){ state.evidenceExtra.splice(i,1); renderEvidence(); save(); }
+function updEvidence(i,f,v){ state.evidenceExtra[i][f]=v; save(); }
+
+/* ════════════════════════════════════════════════════
+   INTERACTIONS
+   ════════════════════════════════════════════════════ */
+
+function mark(key, val) {
+  if (state.marks[key] === val) { delete state.marks[key]; }
+  else { state.marks[key] = val; }
+  // reflect on buttons
+  ['Yes','No','FB'].forEach(v => {
+    const btn = document.querySelector(`.mark[data-k="${key}"][data-v="${v}"]`);
+    if (btn) btn.classList.toggle('on', state.marks[key] === v);
+  });
+  refreshNoteState(key);
+  updateLive();
+  renderEvidence();
+  save();
+}
+
+function noteEl(key){ return document.getElementById(`note-${key}`); }
+
+function refreshNoteState(key) {
+  const m = state.marks[key];
+  const el = noteEl(key);
+  const flag = document.getElementById(`flag-${key}`);
+  if (!el) return;
+  const need = (m === 'No' || m === 'FB');
+  // show note field if there's a mark needing evidence OR there is already text
+  const show = need || (state.notes[key] && state.notes[key].length);
+  el.classList.toggle('show', !!show);
+  const empty = !el.value.trim();
+  el.classList.toggle('required', need && empty);
+  if (flag) flag.classList.toggle('show', need && empty);
+}
+
+function onNote(key, val) {
+  state.notes[key] = val;
+  // keep both copies (item note + evidence record textarea) in sync
+  const a = noteEl(key);
+  if (a && a.value !== val) a.value = val;
+  refreshNoteState(key);
+  save();
+}
+
+function onMeta(f, v) {
+  state.meta[f] = v;
+  if (f === 'driver') {
+    const sn = document.getElementById('sn-driver'); if (sn) sn.textContent = v || 'Driver';
+    const so = document.getElementById('so-dName'); if (so && !so.value) {} // leave manual
+  }
+  if (f === 'assessor') {
+    const sn = document.getElementById('sn-assessor'); if (sn) sn.textContent = v || 'Assessor';
+  }
+  save();
+}
+
+function onComments(v){ state.comments = v; save(); }
+function onSign(f,v){ state.signoff[f]=v; save(); }
+function onAction(f,v){ state.action[f]=v; save(); }
+
+function toggleCSF() {
+  state.csf = !state.csf;
+  document.getElementById('csf-switch').classList.toggle('on', state.csf);
+  updateLive();
+  save();
+}
+
+function setDuties(d) {
+  state.dutiesOverride = d;
+  syncDutiesSeg();
+  save();
+}
+function syncDutiesSeg() {
+  const o = overallOutcome();
+  const eff = state.dutiesOverride || recommendedDuties(o.code);
+  document.querySelectorAll('#duties-seg button').forEach(b => b.classList.toggle('on', b.dataset.d === eff));
+}
+
+function setAction(yes) {
+  state.actionRequired = yes;
+  syncActionSeg();
+  document.getElementById('action-fields').style.display = yes ? 'block' : 'none';
+  save();
+}
+function syncActionSeg() {
+  const o = overallOutcome();
+  const eff = (state.actionRequired === null) ? recommendedAction(o.code) : state.actionRequired;
+  document.querySelectorAll('#action-seg button').forEach(b => b.classList.toggle('on', (b.dataset.a === 'yes') === eff));
+  document.getElementById('action-fields').style.display = eff ? 'block' : 'none';
+}
+
+/* ════════════════════════════════════════════════════
+   LIVE UPDATE (badges, outcome, progress)
+   ════════════════════════════════════════════════════ */
+
+function updateLive() {
+  // group badges
+  PART_A.forEach(g => {
+    const st = groupStatus(g);
+    const b = document.getElementById(`badge-${g.id}`);
+    if (b) {
+      b.className = 'badge ' + (st==='incomplete'?'':st);
+      b.textContent = st==='comp'?'Competent':st==='coach'?'Coaching':st==='nyc'?'Not Yet Competent':'Incomplete';
+    }
+  });
+
+  // group summary table
+  const summary = document.getElementById('grp-summary');
+  if (summary) {
+    summary.innerHTML = PART_A.map(g => {
+      const st = groupStatus(g);
+      const lbl = st==='comp'?'Competent':st==='coach'?'Coaching':st==='nyc'?'Not Yet Competent':'Incomplete';
+      const cls = st==='incomplete'?'':st;
+      return `<tr><td>${g.id} &nbsp; ${esc(g.title)}</td><td><span class="mini-badge ${cls}">${lbl}</span></td></tr>`;
+    }).join('');
+  }
+
+  // safety gate visual
+  const o = overallOutcome();
+  const gateBox = document.getElementById('gate-box');
+  const flagnote = document.getElementById('gate-flagnote');
+  if (gateBox) gateBox.classList.toggle('tripped', safetyGateTripped());
+  if (flagnote) {
+    if (safetyGateTripped()) {
+      const bits = [];
+      if (state.interventions.length>0) bits.push(`${state.interventions.length} intervention(s) recorded`);
+      if (state.csf) bits.push('Critical Safety Failure flagged');
+      flagnote.textContent = 'Safety gate tripped — ' + bits.join(' · ') + '. Outcome locked to "Not to drive until further review".';
+      flagnote.classList.add('show');
+    } else {
+      flagnote.classList.remove('show');
+    }
+  }
+
+  // outcome banner
+  const banner = document.getElementById('outcome-banner');
+  const title = document.getElementById('outcome-title');
+  const why = document.getElementById('outcome-why');
+  const dutiesLine = document.getElementById('duties-line');
+  const clsMap = { pass:'pass', coach:'coach', req:'req', stop:'stop', incomplete:'none' };
+  if (banner) banner.className = 'outcome-banner ' + clsMap[o.code];
+  if (title) title.textContent = OUTCOME_LABEL[o.code];
+  if (why) {
+    if (o.code === 'incomplete') {
+      why.innerHTML = `<strong>${esc(o.triggers[0])}.</strong> The outcome calculates automatically once Parts A, B and C are fully marked.`;
+    } else {
+      why.innerHTML = `<strong>Why:</strong> ${o.triggers.map(esc).join('; ')}.`;
+    }
+  }
+  if (dutiesLine) {
+    if (o.code === 'incomplete') { dutiesLine.textContent = ''; }
+    else {
+      const rec = recommendedDuties(o.code);
+      const map = { yes:'Continue normal driving duties', cond:'Continue with conditions (coaching / action plan)', no:'Stand down from driving pending review' };
+      dutiesLine.innerHTML = `Recommended driving status: <span>${map[rec]}</span>`;
+    }
+  }
+
+  // bands
+  const bands = document.getElementById('bands');
+  if (bands) {
+    const defs = [
+      { code:'pass',  name:'Passed', desc:'Competency confirmed. All Part A groups Competent; nothing marked No; Part C answered soundly. Continue normal driving duties.' },
+      { code:'coach', name:'Passed with coaching', desc:'Competency confirmed with development noted. One or two Part A groups at Coaching; minor Part B/C coaching points; no safety-critical error. Continue normal driving duties.' },
+      { code:'req',   name:'Requires further coaching', desc:'Not yet confirmed. Any Part A group Not Yet Competent; or 3+ groups at Coaching; or a Part C question No; or 2+ Part B No. No intervention. Action plan + reassessment.' },
+      { code:'stop',  name:'Not to drive until further review', desc:'Any assessor intervention, or any Critical Safety Failure. Stand down pending review and referral. Return only when authorised by Training & Competency.' }
+    ];
+    bands.innerHTML = defs.map(d => {
+      const active = d.code === o.code;
+      return `<div class="band ${active?'active '+d.code:''}">
+        <div class="band-name"><span class="band-check">${active?'\u25C9':'\u25CB'}</span>${d.name}</div>
+        <div class="band-desc">${d.desc}</div>
+      </div>`;
+    }).join('');
+  }
+
+  syncDutiesSeg();
+  syncActionSeg();
+
+  // progress
+  const n = markedCount();
+  const pct = Math.round(n / TOTAL_ITEMS * 100);
+  const fill = document.getElementById('progress-fill');
+  const lbl = document.getElementById('progress-label');
+  if (fill) fill.style.width = pct + '%';
+  if (lbl) lbl.textContent = `${n} / ${TOTAL_ITEMS}`;
+}
+
+/* ════════════════════════════════════════════════════
+   SIGNATURE PADS
+   ════════════════════════════════════════════════════ */
+
+const sigCtx = {};
+function setupSig(which) {
+  const id = 'cvs-' + which;
+  const cvs = document.getElementById(id);
+  if (!cvs) return;
+  const ctx = cvs.getContext('2d');
+  let drawing = false, lx=0, ly=0;
+
+  function init() {
+    const dpr = window.devicePixelRatio || 1;
+    const r = cvs.getBoundingClientRect();
+    cvs.width = r.width * dpr; cvs.height = r.height * dpr;
+    ctx.scale(dpr, dpr);
+    ctx.strokeStyle = '#1A1A1A'; ctx.lineWidth = 2.2; ctx.lineCap='round'; ctx.lineJoin='round';
+    // redraw saved signature if present
+    if (state.sigImages[which]) {
+      const img = new Image();
+      img.onload = () => ctx.drawImage(img, 0, 0, r.width, r.height);
+      img.src = state.sigImages[which];
+      cvs.classList.add('signed');
+    }
+  }
+  function pos(e){ const r=cvs.getBoundingClientRect(); return e.touches?{x:e.touches[0].clientX-r.left,y:e.touches[0].clientY-r.top}:{x:e.clientX-r.left,y:e.clientY-r.top}; }
+  function start(e){ e.preventDefault(); drawing=true; const p=pos(e); lx=p.x; ly=p.y; }
+  function move(e){ if(!drawing) return; e.preventDefault(); const p=pos(e); ctx.beginPath(); ctx.moveTo(lx,ly); ctx.lineTo(p.x,p.y); ctx.stroke(); lx=p.x; ly=p.y; cvs.classList.add('signed'); }
+  function end(){ if(!drawing) return; drawing=false; captureSig(which); }
+
+  cvs.addEventListener('mousedown',start); cvs.addEventListener('mousemove',move);
+  cvs.addEventListener('mouseup',end); cvs.addEventListener('mouseleave',end);
+  cvs.addEventListener('touchstart',start,{passive:false});
+  cvs.addEventListener('touchmove',move,{passive:false});
+  cvs.addEventListener('touchend',end);
+
+  sigCtx[which] = { cvs, ctx, init };
+  setTimeout(init, 60);
+}
+function captureSig(which){ const o=sigCtx[which]; if(!o) return; try{ state.sigImages[which]=o.cvs.toDataURL('image/png'); save(); }catch(e){} }
+function clearSig(which){ const o=sigCtx[which]; if(!o) return; o.ctx.clearRect(0,0,o.cvs.width,o.cvs.height); o.cvs.classList.remove('signed'); state.sigImages[which]=null; save(); }
+
+/* ════════════════════════════════════════════════════
+   PERSISTENCE  (localStorage multi-draft + file)
+   ════════════════════════════════════════════════════ */
+
+let saveTimer = null;
+function save() { // debounced autosave
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => { writeDraft(false); }, 500);
+}
+function saveDraft(explicit) { writeDraft(true); if (explicit) toast('Progress saved on this device'); }
+
+let storageAvailable = true;
+let inMemoryDrafts = {};  // fallback for when localStorage is blocked
+
+function testStorage() {
+  try {
+    const t = '__test_' + Date.now();
+    localStorage.setItem(t, 'ok');
+    localStorage.removeItem(t);
+    return true;
+  } catch(e) {
+    return false;
+  }
+}
+
+function loadAll() {
+  if (!storageAvailable) return Object.assign({}, inMemoryDrafts);
+  try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; }
+  catch(e){ return Object.assign({}, inMemoryDrafts); }
+}
+
+function writeDraft(markSaved) {
+  state.savedAt = Date.now();
+  let all;
+  try { all = loadAll(); } catch(e){ all = {}; }
+  all[state.id] = JSON.parse(JSON.stringify(state));
+  
+  let success = false;
+  if (storageAvailable) {
+    try {
+      localStorage.setItem(LS_KEY, JSON.stringify(all));
+      localStorage.setItem(LAST_KEY, state.id);
+      success = true;
+    } catch(e) {
+      // storage is full or temporarily blocked
+      storageAvailable = false;
+      inMemoryDrafts = all;  // keep in memory as fallback
+      if (markSaved) toast('⚠ Storage blocked. Changes kept in memory only. Clear storage or use normal browsing.');
+    }
+  } else {
+    // already know storage is blocked, keep in memory
+    inMemoryDrafts = all;
+  }
+  
+  setSavedDot(success && storageAvailable);
+}
+function setSavedDot(on){ const d=document.getElementById('saved-dot'); if(d) d.classList.toggle('on', !!on); }
+
+function loadStateInto(s) {
+  state = Object.assign(blankState(), s);
+  // guard nested objects
+  state.meta = Object.assign({driver:'',assessor:'',date:'',lrv:'',run:'',line:'',location:''}, s.meta||{});
+  state.marks = s.marks||{}; state.notes = s.notes||{}; state.evMeta = s.evMeta||{};
+  state.interventions = s.interventions||[]; state.evidenceExtra = s.evidenceExtra||[];
+  state.action = Object.assign({areas:'',training:'',reassessment:''}, s.action||{});
+  state.signoff = Object.assign({aName:'',aDate:'',dName:'',dDate:''}, s.signoff||{});
+  state.sigImages = Object.assign({assessor:null,driver:null}, s.sigImages||{});
+  hydrateUI();
+}
+
+function hydrateUI() {
+  render();
+  // fill meta
+  const set = (id,v)=>{ const e=document.getElementById(id); if(e) e.value=v||''; };
+  set('m-driver',state.meta.driver); set('m-assessor',state.meta.assessor); set('m-date',state.meta.date);
+  set('m-line',state.meta.line); set('m-lrv',state.meta.lrv); set('m-run',state.meta.run); set('m-location',state.meta.location);
+  // marks + notes
+  Object.keys(state.marks).forEach(k=>{
+    const v=state.marks[k];
+    const btn=document.querySelector(`.mark[data-k="${k}"][data-v="${v}"]`);
+    if(btn) btn.classList.add('on');
+  });
+  Object.keys(state.notes).forEach(k=>{ const el=noteEl(k); if(el){ el.value=state.notes[k]; } });
+  PART_A.flatMap(groupKeys).concat(PART_B.map((_,i)=>`B-${i}`)).concat(PART_C.map((_,i)=>`C-${i}`)).forEach(refreshNoteState);
+  // sign-off
+  set('so-aName',state.signoff.aName); set('so-aDate',state.signoff.aDate);
+  set('so-dName',state.signoff.dName); set('so-dDate',state.signoff.dDate);
+  set('comments',state.comments);
+  set('ap-areas',state.action.areas); set('ap-training',state.action.training); set('ap-reassessment',state.action.reassessment);
+  const snD=document.getElementById('sn-driver'); if(snD) snD.textContent=state.meta.driver||'Driver';
+  const snA=document.getElementById('sn-assessor'); if(snA) snA.textContent=state.meta.assessor||'Assessor';
+  // csf switch
+  const sw=document.getElementById('csf-switch'); if(sw) sw.classList.toggle('on', state.csf);
+  // dynamic sections
+  renderInterv(); renderEvidence(); updateLive();
+  setupSig('assessor'); setupSig('driver');
+  setSavedDot(!!state.savedAt);
+}
+
+/* ── Drafts drawer ── */
+function openDrawer() {
+  // update storage status note
+  const statusNote = document.getElementById('drawer-status-note');
+  if (statusNote) {
+    if (storageAvailable) {
+      statusNote.textContent = 'Stored on this device. Use a file to move a draft to another phone.';
+    } else {
+      statusNote.textContent = '⚠ Storage blocked (private mode?). Drafts kept in memory — they will be lost if you close this tab.';
+      statusNote.style.color = '#C0291F';
+      statusNote.style.fontWeight = '600';
+    }
+  }
+  renderDrafts();
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('drawer').classList.add('show');
+}
+function closeDrawer() {
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('drawer').classList.remove('show');
+}
+function renderDrafts() {
+  const all = loadAll();
+  const ids = Object.keys(all).sort((a,b)=>(all[b].savedAt||0)-(all[a].savedAt||0));
+  const body = document.getElementById('drawer-body');
+  if (ids.length === 0) {
+    body.innerHTML = `<div class="draft-empty">No saved assessments yet.<br>Your current work autosaves as you go.</div>`;
+    return;
+  }
+  const outClsMap = { pass:'out-pass', coach:'out-coach', req:'out-req', stop:'out-stop', incomplete:'none' };
+  const outBg = { pass:'background:var(--out-pass-bg);color:var(--out-pass)', coach:'background:var(--out-coach-bg);color:var(--out-coach)', req:'background:var(--out-req-bg);color:var(--out-req)', stop:'background:var(--out-stop-bg);color:var(--out-stop)', incomplete:'background:var(--st-none-bg);color:var(--st-none)' };
+  body.innerHTML = ids.map(id => {
+    const d = all[id];
+    const isCur = id === state.id;
+    const oc = draftOutcome(d);
+    const dt = d.savedAt ? new Date(d.savedAt).toLocaleString('en-AU',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',hour12:true}) : '—';
+    const marked = d.marks ? Object.values(d.marks).filter(Boolean).length : 0;
+    return `<div class="draft-item ${isCur?'current':''}">
+      <div class="draft-top">
+        <div>
+          <div class="draft-name">${esc(d.meta&&d.meta.driver?d.meta.driver:'Unnamed driver')}${isCur?' · current':''}</div>
+          <div class="draft-meta">${d.meta&&d.meta.date?esc(d.meta.date)+' · ':''}${marked}/${TOTAL_ITEMS} marked · saved ${dt}</div>
+        </div>
+        <span class="draft-outcome" style="${outBg[oc]}">${OUTCOME_LABEL[oc]}</span>
+      </div>
+      <div class="draft-actions">
+        <button class="draft-btn resume" onclick="resumeDraft('${id}')">${isCur?'Reopen':'Resume'}</button>
+        <button class="draft-btn danger" onclick="deleteDraft('${id}')">Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function draftOutcome(d) {
+  // lightweight recompute for the badge without disturbing live state
+  const tmp = state; state = Object.assign(blankState(), d);
+  state.meta=d.meta||{}; state.marks=d.marks||{}; state.interventions=d.interventions||[]; state.csf=!!d.csf;
+  const o = overallOutcome().code; state = tmp; return o;
+}
+function resumeDraft(id) {
+  const all = loadAll();
+  if (!all[id]) return;
+  loadStateInto(all[id]);
+  closeDrawer();
+  toast('Assessment loaded');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function deleteDraft(id) {
+  if (!confirm('Delete this saved assessment? This cannot be undone.')) return;
+  const all = loadAll();
+  delete all[id];
+  if (storageAvailable) {
+    try { localStorage.setItem(LS_KEY, JSON.stringify(all)); } catch(e){}
+  } else {
+    inMemoryDrafts = all;
+  }
+  if (id === state.id) { state = blankState(); hydrateUI(); }
+  renderDrafts();
+  toast('Deleted');
+}
+function newAssessment() {
+  if (!confirm('Start a new blank assessment? Your current one is already saved and can be reopened from this list.')) return;
+  writeDraft(true);          // ensure current is stored
+  state = blankState();
+  hydrateUI();
+  closeDrawer();
+  window.scrollTo({top:0,behavior:'smooth'});
+  toast('New assessment started');
+}
+
+/* ── File export / import ── */
+function exportFile() {
+  writeDraft(true);
+  const data = JSON.stringify(state, null, 2);
+  const blob = new Blob([data], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const nm = (state.meta.driver||'driver').replace(/[^a-z0-9]+/gi,'_');
+  const dt = state.meta.date || new Date().toISOString().slice(0,10);
+  a.href = url; a.download = `VoC_${nm}_${dt}.json`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url), 1000);
+  toast('Saved to file');
+}
+function importFile(ev) {
+  const file = ev.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const s = JSON.parse(e.target.result);
+      if (!s || !s.marks) throw new Error('bad');
+      s.id = s.id || ('voc_'+Date.now());
+      loadStateInto(s);
+      writeDraft(true);
+      closeDrawer();
+      toast('Assessment loaded from file');
+      window.scrollTo({top:0,behavior:'smooth'});
+    } catch(err) { alert('That file could not be read as a saved VoC assessment.'); }
+  };
+  reader.readAsText(file);
+  ev.target.value = '';
+}
+
+/* ── Toast ── */
+let toastTimer=null;
+function toast(msg){ const t=document.getElementById('toast'); if(!t) return; t.textContent=msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),2200); }
+
+/* ── Nav ── */
+function jump(id){ const e=document.getElementById(id); if(e) e.scrollIntoView({behavior:'smooth',block:'start'}); }
+
+/* ════════════════════════════════════════════════════
+   PDF EXPORT (iOS-native print, no popup)
+   ════════════════════════════════════════════════════ */
+
+function exportPDF() {
+  // capture signatures from canvas (in case last stroke not yet captured)
+  captureSig('assessor'); captureSig('driver');
+
+  const o = overallOutcome();
+  const now = new Date();
+  const ts = now.toLocaleString('en-AU',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true});
+  const md = state.meta;
+
+  const outColors = { pass:'#1E7D43', coach:'#0E6E8C', req:'#C77800', stop:'#C0291F', incomplete:'#757980' };
+  const outCol = outColors[o.code];
+
+  function markCell(key) {
+    const m = state.marks[key] || '—';
+    const c = m==='Yes'?'#1E7D43':m==='No'?'#C0291F':m==='FB'?'#C77800':'#9499A0';
+    return `<td style="padding:6px 8px;text-align:center;font-size:11px;font-weight:800;color:${c};white-space:nowrap;">${m}</td>`;
+  }
+  function itemRow(key, text, qnum) {
+    const note = state.notes[key];
+    const label = qnum ? `<strong style="color:${outCol}">${qnum}.</strong> ${esc(text)}` : esc(text);
+    return `<tr style="border-bottom:1px solid #ECEDEF;">
+      <td style="padding:6px 8px;font-size:11.5px;line-height:1.4;">${label}${note?`<br><span style="color:#757980;font-style:italic;font-size:10.5px;">Evidence: ${esc(note)}</span>`:''}</td>
+      ${markCell(key)}
+    </tr>`;
+  }
+
+  // Part A
+  let partA = '';
+  PART_A.forEach(g => {
+    const st = groupStatus(g);
+    const lbl = st==='comp'?'Competent':st==='coach'?'Coaching':st==='nyc'?'Not Yet Competent':'Incomplete';
+    const sc = st==='comp'?'#1E7D43':st==='coach'?'#C77800':st==='nyc'?'#C0291F':'#9499A0';
+    partA += `<div style="margin-bottom:12px;page-break-inside:avoid;">
+      <div style="display:flex;justify-content:space-between;align-items:center;background:#CC0000;color:#fff;padding:6px 10px;border-radius:4px 4px 0 0;">
+        <span style="font-size:11.5px;font-weight:700;">${g.id} &nbsp; ${esc(g.title)}</span>
+        <span style="font-size:10px;font-weight:800;background:#fff;color:${sc};padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.3px;">${lbl}</span>
+      </div>
+      <table style="width:100%;border-collapse:collapse;border:1px solid #ECEDEF;border-top:none;">
+        ${g.items.map((t,i)=>itemRow(`${g.id}-${i}`, t)).join('')}
+      </table>
+    </div>`;
+  });
+
+  // Part B / C
+  const partB = `<div style="margin-bottom:12px;page-break-inside:avoid;">
+    <div style="background:#404040;color:#fff;padding:6px 10px;border-radius:4px 4px 0 0;font-size:11.5px;font-weight:700;">Part B — Behavioural / Coaching Assessment</div>
+    <table style="width:100%;border-collapse:collapse;border:1px solid #ECEDEF;border-top:none;">${PART_B.map((t,i)=>itemRow(`B-${i}`,t)).join('')}</table></div>`;
+  const partC = `<div style="margin-bottom:12px;page-break-inside:avoid;">
+    <div style="background:#404040;color:#fff;padding:6px 10px;border-radius:4px 4px 0 0;font-size:11.5px;font-weight:700;">Part C — Knowledge &amp; Scenario Discussion</div>
+    <table style="width:100%;border-collapse:collapse;border:1px solid #ECEDEF;border-top:none;">${PART_C.map((t,i)=>itemRow(`C-${i}`,t,i+1)).join('')}</table></div>`;
+
+  // Interventions
+  let interv = '';
+  if (state.interventions.length) {
+    interv = `<div style="margin-bottom:12px;page-break-inside:avoid;">
+      <div style="background:#C0291F;color:#fff;padding:6px 10px;border-radius:4px 4px 0 0;font-size:11.5px;font-weight:700;">Assessor Intervention Record</div>
+      <table style="width:100%;border-collapse:collapse;border:1px solid #ECEDEF;border-top:none;">
+        <tr style="background:#FBE7E5;"><th style="padding:5px 8px;text-align:left;font-size:9.5px;text-transform:uppercase;letter-spacing:.4px;color:#7A1812;">Time</th><th style="padding:5px 8px;text-align:left;font-size:9.5px;text-transform:uppercase;color:#7A1812;">Location</th><th style="padding:5px 8px;text-align:left;font-size:9.5px;text-transform:uppercase;color:#7A1812;">Reason</th><th style="padding:5px 8px;text-align:left;font-size:9.5px;text-transform:uppercase;color:#7A1812;">Rule ref</th></tr>
+        ${state.interventions.map(r=>`<tr style="border-bottom:1px solid #ECEDEF;"><td style="padding:6px 8px;font-size:11px;">${esc(r.time)}</td><td style="padding:6px 8px;font-size:11px;">${esc(r.location)}</td><td style="padding:6px 8px;font-size:11px;">${esc(r.reason)}</td><td style="padding:6px 8px;font-size:11px;">${esc(r.ref)}</td></tr>`).join('')}
+      </table></div>`;
+  }
+
+  // Evidence (auto + extra)
+  const evRows = [];
+  const pushEv = (key,label)=>{ const m=state.marks[key]; if(m==='No'||m==='FB'){ const em=state.evMeta[key]||{}; evRows.push({locTime:em.locTime||'',obs:state.notes[key]||'',outcome:m,ref:em.ref||'',src:label}); } };
+  PART_A.forEach(g=>g.items.forEach((t,i)=>pushEv(`${g.id}-${i}`,`${g.id}`)));
+  PART_B.forEach((t,i)=>pushEv(`B-${i}`,'Part B'));
+  PART_C.forEach((t,i)=>pushEv(`C-${i}`,`Part C Q${i+1}`));
+  state.evidenceExtra.forEach(r=>{ if(r.locTime||r.obs||r.outcome||r.ref) evRows.push(Object.assign({src:''},r)); });
+  let evidence = '';
+  if (evRows.length) {
+    evidence = `<div style="margin-bottom:12px;page-break-inside:avoid;">
+      <div style="background:#404040;color:#fff;padding:6px 10px;border-radius:4px 4px 0 0;font-size:11.5px;font-weight:700;">Evidence Record</div>
+      <table style="width:100%;border-collapse:collapse;border:1px solid #ECEDEF;border-top:none;">
+        <tr style="background:#F1F2F4;"><th style="padding:5px 8px;text-align:left;font-size:9.5px;text-transform:uppercase;letter-spacing:.4px;color:#5C5C5C;">Location / time</th><th style="padding:5px 8px;text-align:left;font-size:9.5px;text-transform:uppercase;color:#5C5C5C;">Observation</th><th style="padding:5px 8px;text-align:center;font-size:9.5px;text-transform:uppercase;color:#5C5C5C;">Outcome</th><th style="padding:5px 8px;text-align:left;font-size:9.5px;text-transform:uppercase;color:#5C5C5C;">Rule ref</th></tr>
+        ${evRows.map(r=>`<tr style="border-bottom:1px solid #ECEDEF;"><td style="padding:6px 8px;font-size:11px;">${esc(r.locTime)}</td><td style="padding:6px 8px;font-size:11px;">${r.src?`<strong>${esc(r.src)}:</strong> `:''}${esc(r.obs)}</td><td style="padding:6px 8px;font-size:11px;text-align:center;font-weight:800;color:${r.outcome==='No'?'#C0291F':r.outcome==='FB'?'#C77800':'#404040'};">${esc(r.outcome)}</td><td style="padding:6px 8px;font-size:11px;">${esc(r.ref)}</td></tr>`).join('')}
+      </table></div>`;
+  }
+
+  // Action plan
+  let action = '';
+  const actReq = (state.actionRequired===null) ? recommendedAction(o.code) : state.actionRequired;
+  if (actReq && (state.action.areas||state.action.training||state.action.reassessment)) {
+    action = `<div style="margin-bottom:12px;page-break-inside:avoid;">
+      <div style="background:#404040;color:#fff;padding:6px 10px;border-radius:4px 4px 0 0;font-size:11.5px;font-weight:700;">Action Plan</div>
+      <table style="width:100%;border-collapse:collapse;border:1px solid #ECEDEF;border-top:none;">
+        <tr style="border-bottom:1px solid #ECEDEF;"><td style="padding:7px 9px;font-size:9.5px;font-weight:800;text-transform:uppercase;color:#5C5C5C;width:160px;vertical-align:top;">Areas for improvement</td><td style="padding:7px 9px;font-size:11.5px;white-space:pre-wrap;">${esc(state.action.areas)||'—'}</td></tr>
+        <tr style="border-bottom:1px solid #ECEDEF;"><td style="padding:7px 9px;font-size:9.5px;font-weight:800;text-transform:uppercase;color:#5C5C5C;vertical-align:top;">Required training</td><td style="padding:7px 9px;font-size:11.5px;white-space:pre-wrap;">${esc(state.action.training)||'—'}</td></tr>
+        <tr><td style="padding:7px 9px;font-size:9.5px;font-weight:800;text-transform:uppercase;color:#5C5C5C;vertical-align:top;">Reassessment / timeframe</td><td style="padding:7px 9px;font-size:11.5px;white-space:pre-wrap;">${esc(state.action.reassessment)||'—'}</td></tr>
+      </table></div>`;
+  }
+
+  // Group summary + duties
+  const grpSummary = PART_A.map(g=>{ const st=groupStatus(g); const lbl=st==='comp'?'Competent':st==='coach'?'Coaching':st==='nyc'?'Not Yet Competent':'Incomplete'; const sc=st==='comp'?'#1E7D43':st==='coach'?'#C77800':st==='nyc'?'#C0291F':'#9499A0'; return `<tr><td style="padding:5px 8px;font-size:11px;border-bottom:1px solid #ECEDEF;">${g.id} ${esc(g.title)}</td><td style="padding:5px 8px;font-size:11px;font-weight:800;color:${sc};text-align:right;border-bottom:1px solid #ECEDEF;">${lbl}</td></tr>`; }).join('');
+  const dutiesEff = state.dutiesOverride || recommendedDuties(o.code);
+  const dutiesMap = { yes:'Continue normal driving duties', cond:'Continue with conditions (coaching / action plan)', no:'Stand down from driving duties pending review', null:'—' };
+
+  const report = `
+    <div style="display:flex;align-items:center;gap:12px;border-bottom:3px solid #CC0000;padding-bottom:12px;margin-bottom:16px;">
+      <img src="data:image/jpeg;base64,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oa1oHgAO5dhCn0+HRwwmPe+5Wp4vnKtxHEY6wfCIzdrRsPHqTz7tF88MXlsli4bsNC3LWZegNayGHb0kZIJafeFLXZf4eO1FqJuqMpBvicZJvC1w6TzjuHrDe8+vb1qRM92b8Bks/byUWevU4LM5m+TRwsLY9zuWtJ67d6mLT+Hx+Bw1XEYqu2vTqxhkTG+A8z5k95KrqLCpGSh02zdlueZfaBST0Biw4ESS/qNrWFtdeZ5X5BZAIgRbCuOoiIiIiIiIiIiIiIiLhYjV2nMPqrBz4bN1G2akw7u5zHeDmnwcPNZhF8c0OFivcUj4niRhsRqCNwqUcW+Eef0LYktMY/JYQn+DuRs6xjylA+ifX3H7F+uGvGXVmjGRUjK3LYpnQVbTjuwfkP72+zqPUrpysZJE6ORjXscNnNcNwR5EKIte8AdIahkkt4kyYG6/qfk7Q6Fx9cZ7v6JCopsLkhf2lK63d6/K6ph2e6LEacUePRcY/wB4D6kDUHvb8l26V4/6CzDGMyE9jC2HdCy0wlnue3cfHZb9jdXaVyLeahqLFWB+RaYSPduquZ7s969xsxNBlHLw+DoZhG73tft9hKw9Xh1rOpJyWdK5NpB/vHMPiEZX1keksfr7JPlLLdWO0oa21+RIP0Nj81cKzqLA1h/D5rHx+W9hvX7VjJ9b4Uu9HQkfek/8MbN+JUA6c0VqTmb/AM377fzoS371K+lNGZWHldagZXG31nAn4BTY6qaXZtlrdbgWGUIu6fjPkPtcrJ6w1zW0vpezqPLuaOQctWq07GaUj5rR5+s+A3VZtF6G1hxb1RZzVjmgq2ZzJbyMrDyDf6sY+sQNgAOg8SrJ3uFuJzmejy2q7MuXbX6VKB+ZVgb+aOr3HxJPuW+1K8FWvHXrQRwQxt5WRxtDWtHkAO5eZaN1S8dqfhHLr4rJh+ZYMDp3igbeZ+hcRo0dGjmepOl+tlhdC6Tw2jdPw4bC1/Rws6ySO6vmf4vcfEn7PBZ9EVi1oaLDZaZNNJPIZJDdx1JO5REReljRERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERNkRERERERNkRERNkREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREX/2Q==" style="height:34px;width:auto;">
+      <div style="border-left:2px solid #CC0000;padding-left:11px;">
+        <div style="font-size:15px;font-weight:800;color:#404040;">Verification of Competency</div>
+        <div style="font-size:10px;color:#757980;">Light Rail Driver — On-Network Observation &amp; Marking Record · Recurrent competency assurance</div>
+      </div>
+    </div>
+
+    <table style="width:100%;border-collapse:collapse;background:#F1F2F4;border-radius:6px;margin-bottom:16px;">
+      <tr>
+        <td style="padding:6px 10px;font-size:10px;color:#757980;width:90px;">Driver</td><td style="padding:6px 10px;font-size:12px;font-weight:700;">${esc(md.driver)||'—'}</td>
+        <td style="padding:6px 10px;font-size:10px;color:#757980;width:90px;">Assessor</td><td style="padding:6px 10px;font-size:12px;font-weight:700;">${esc(md.assessor)||'—'}</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 10px;font-size:10px;color:#757980;">Date</td><td style="padding:6px 10px;font-size:12px;font-weight:700;">${esc(md.date)||'—'}</td>
+        <td style="padding:6px 10px;font-size:10px;color:#757980;">LRV / Run</td><td style="padding:6px 10px;font-size:12px;font-weight:700;">${esc(md.lrv)||'—'} / ${esc(md.run)||'—'}</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 10px;font-size:10px;color:#757980;">Line</td><td style="padding:6px 10px;font-size:12px;font-weight:700;">${esc(md.line)||'—'}</td>
+        <td style="padding:6px 10px;font-size:10px;color:#757980;">Location</td><td style="padding:6px 10px;font-size:12px;font-weight:700;">${esc(md.location)||'—'}</td>
+      </tr>
+    </table>
+
+    <div style="font-size:13px;font-weight:800;color:#CC0000;margin:0 0 8px;">Part A — Safety-Critical Assessment</div>
+    ${partA}
+    ${partB}
+    ${partC}
+    ${interv}
+    ${evidence}
+
+    <div style="margin-bottom:14px;page-break-inside:avoid;">
+      <div style="background:#CC0000;color:#fff;padding:6px 10px;border-radius:4px 4px 0 0;font-size:11.5px;font-weight:700;">Overall Outcome</div>
+      <div style="border:1px solid #ECEDEF;border-top:none;padding:12px;">
+        <table style="width:100%;border-collapse:collapse;margin-bottom:12px;">${grpSummary}</table>
+        <div style="text-align:center;border:2px solid ${outCol};border-radius:8px;padding:12px;margin-bottom:10px;">
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#757980;">Outcome</div>
+          <div style="font-size:18px;font-weight:900;color:${outCol};margin-top:3px;">${OUTCOME_LABEL[o.code]}</div>
+          <div style="font-size:11px;color:#404040;margin-top:7px;text-align:left;background:#F8F8F9;border-radius:6px;padding:8px 10px;"><strong>Basis:</strong> ${o.triggers.map(esc).join('; ')}.</div>
+        </div>
+        <div style="font-size:11.5px;color:#404040;"><strong>Safety gate:</strong> ${safetyGateTripped()?'Yes — '+(state.interventions.length?state.interventions.length+' intervention(s)':'')+(state.csf?(state.interventions.length?', ':'')+'Critical Safety Failure':''):'No'}</div>
+        <div style="font-size:11.5px;color:#404040;margin-top:4px;"><strong>Continue normal driving duties:</strong> ${dutiesMap[dutiesEff]}</div>
+      </div>
+    </div>
+
+    ${action}
+
+    ${state.comments?`<div style="margin-bottom:14px;page-break-inside:avoid;"><div style="background:#404040;color:#fff;padding:6px 10px;border-radius:4px 4px 0 0;font-size:11.5px;font-weight:700;">Assessor Comments / Overall Summary</div><div style="border:1px solid #ECEDEF;border-top:none;padding:10px;font-size:11.5px;white-space:pre-wrap;line-height:1.5;">${esc(state.comments)}</div></div>`:''}
+
+    <div style="border:1px solid #ECEDEF;border-radius:6px;overflow:hidden;margin-bottom:10px;page-break-inside:avoid;">
+      <div style="background:#CC0000;color:#fff;padding:6px 10px;font-size:11.5px;font-weight:700;">Acknowledgement &amp; Sign-Off</div>
+      <div style="padding:10px 12px;font-size:10.5px;color:#5C5C5C;font-style:italic;border-bottom:1px solid #ECEDEF;line-height:1.5;">Assessor declaration — conducted in accordance with the VoC process; outcome supported by the objective evidence above.</div>
+      <table style="width:100%;border-collapse:collapse;">
+        <tr>
+          <td style="padding:11px;border-right:1px solid #ECEDEF;width:50%;vertical-align:top;">
+            <div style="font-size:9.5px;font-weight:800;color:#CC0000;text-transform:uppercase;letter-spacing:.4px;">Assessor</div>
+            <div style="font-size:11.5px;color:#404040;margin:3px 0 7px;">${esc(state.signoff.aName||md.assessor)||'—'} ${state.signoff.aDate?'· '+esc(state.signoff.aDate):''}</div>
+            ${state.sigImages.assessor?`<img src="${state.sigImages.assessor}" style="width:100%;max-height:74px;object-fit:contain;border:1px solid #ECEDEF;border-radius:4px;background:#FCFCFD;">`:'<div style="height:74px;border:1px dashed #DADCE0;border-radius:4px;"></div>'}
+          </td>
+          <td style="padding:11px;width:50%;vertical-align:top;">
+            <div style="font-size:9.5px;font-weight:800;color:#CC0000;text-transform:uppercase;letter-spacing:.4px;">Driver</div>
+            <div style="font-size:11.5px;color:#404040;margin:3px 0 7px;">${esc(state.signoff.dName||md.driver)||'—'} ${state.signoff.dDate?'· '+esc(state.signoff.dDate):''}</div>
+            ${state.sigImages.driver?`<img src="${state.sigImages.driver}" style="width:100%;max-height:74px;object-fit:contain;border:1px solid #ECEDEF;border-radius:4px;background:#FCFCFD;">`:'<div style="height:74px;border:1px dashed #DADCE0;border-radius:4px;"></div>'}
+          </td>
+        </tr>
+      </table>
+      <div style="padding:8px 12px;background:#F1F2F4;border-top:1px solid #ECEDEF;font-size:9.5px;color:#757980;text-align:center;line-height:1.5;">Document generated ${ts} · By signing, the driver acknowledges the outcome and that feedback has been discussed. Appeal via Driver Team Leader within 14 days.</div>
+    </div>
+    <div style="font-size:9px;color:#9499A0;text-align:center;">C1 — Internal · Transdev Sydney Light Rail · Verification of Competency Record · v2</div>
+  `;
+
+  // Filename: name the PDF after the driver and date so every export is a separate file.
+  const fnm = ((md.driver || 'Driver').trim().replace(/[^a-z0-9]+/gi, '_').replace(/^_+|_+$/g, '')) || 'Driver';
+  const fdt = md.date || now.toISOString().slice(0, 10);
+  const fileTitle = `VoC_${fnm}_${fdt}`;
+
+  // Build a complete, standalone document and print it from a hidden iframe.
+  // This is the most reliable "Save as PDF" path on iPhone: it prints a clean document
+  // containing ONLY the report, avoiding the show/hide swap that can render blank on iOS.
+  const printDoc =
+    '<!DOCTYPE html><html lang="en-AU"><head><meta charset="UTF-8">' +
+    '<meta name="viewport" content="width=device-width,initial-scale=1">' +
+    '<title>' + fileTitle + '</title>' +
+    '<style>' +
+      '@page{size:A4;margin:13mm 13mm 16mm;}' +
+      'html,body{margin:0;padding:0;}' +
+      'body{font-family:Arial,Helvetica,sans-serif;color:#2A2A2A;' +
+      '-webkit-print-color-adjust:exact;print-color-adjust:exact;}' +
+      'img{max-width:100%;}' +
+    '</style></head><body>' + report + '</body></html>';
+
+  const prev = document.getElementById('print-frame');
+  if (prev) prev.remove();
+  const frame = document.createElement('iframe');
+  frame.id = 'print-frame';
+  frame.setAttribute('aria-hidden', 'true');
+  frame.style.cssText = 'position:fixed;right:0;bottom:0;width:1px;height:1px;border:0;opacity:0;';
+  document.body.appendChild(frame);
+
+  const fwin = frame.contentWindow;
+  const fdoc = fwin.document;
+  fdoc.open(); fdoc.write(printDoc); fdoc.close();
+
+  function fireFramePrint() {
+    try {
+      fwin.focus();
+      fwin.print();
+    } catch (e) {
+      // Fallback: print the main window via the hidden #print-view container.
+      const pv = document.getElementById('print-view');
+      const origTitle = document.title;
+      pv.innerHTML = '<div style="font-family:Arial,Helvetica,sans-serif;color:#2A2A2A;">' + report + '</div>';
+      document.title = fileTitle;
+      window.onafterprint = () => { pv.innerHTML = ''; document.title = origTitle; };
+      setTimeout(() => { document.title = origTitle; }, 4000);
+      window.print();
+    }
+  }
+
+  // Wait for the logo + signatures inside the frame to decode, force a paint, then print.
+  const fimgs = Array.from(fdoc.images || []);
+  const ready = fimgs.map(img => {
+    if (typeof img.decode === 'function') return img.decode().catch(() => {});
+    if (img.complete) return Promise.resolve();
+    return new Promise(res => { img.onload = img.onerror = () => res(); });
+  });
+  let fired = false;
+  const go = () => {
+    if (fired) return; fired = true;
+    requestAnimationFrame(() => requestAnimationFrame(fireFramePrint));
+  };
+  Promise.all(ready).then(go);
+  setTimeout(go, 900);                                                   // always fires
+  setTimeout(() => { const f = document.getElementById('print-frame'); if (f) f.remove(); }, 60000);
+}
+
+/* ════════════════════════════════════════════════════
+   INIT
+   ════════════════════════════════════════════════════ */
+
+document.addEventListener('DOMContentLoaded', () => {
+  // test if localStorage is available
+  if (!testStorage()) {
+    storageAvailable = false;
+    toast('⚠ Storage unavailable (private mode?). Drafts kept in memory only.');
+  }
+  
+  // resume last draft if present, else start fresh
+  let resumed = false;
+  try {
+    const lastId = storageAvailable ? localStorage.getItem(LAST_KEY) : Object.keys(inMemoryDrafts)[0];
+    const all = loadAll();
+    if (lastId && all[lastId]) { loadStateInto(all[lastId]); resumed = true; }
+  } catch(e){}
+  if (!resumed) {
+    state = blankState();
+    state.meta.date = new Date().toISOString().slice(0,10);
+    hydrateUI();
+  }
+});
+</script>
+</body>
+</html>
